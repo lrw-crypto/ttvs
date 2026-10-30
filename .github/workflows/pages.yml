@@ -1,24 +1,20 @@
-name: Publish game to GitHub Pages
+name: Check game and published site
 
-# The user authorized publishing this version and subsequent requested changes.
 on:
   push:
     branches: [main]
   workflow_dispatch:
+  workflow_run:
+    workflows: ['pages build and deployment']
+    types: [completed]
 
 permissions:
   contents: read
 
-concurrency:
-  group: pages
-  cancel-in-progress: false
-
 jobs:
-  build:
+  validate:
+    if: github.event_name != 'workflow_run'
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pages: read
     steps:
       - uses: actions/checkout@v4
         with:
@@ -30,21 +26,22 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run build
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: dist
 
-  deploy:
-    needs: build
+  verify-live:
+    if: github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Publish site
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          path: tooling
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          persist-credentials: false
+          path: published
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Verify public homepage, JavaScript, styles and assets
+        run: node tooling/scripts/verify-live.mjs https://lrw-crypto.github.io/ttvs/ published/release.json

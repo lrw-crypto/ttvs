@@ -1,13 +1,18 @@
-import { renderScene, avatarSvg, robotSvg } from './scene.js';
+import { robotSvg } from './scene.js';
+import { renderAdventure, adventurerSvg as avatarSvg } from './adventure-world.js';
+import { QUESTS, BOSS, CAMP, TILE, canEnter, experience, heroLevel, findPath, passable, nearestNPC, loadRpg, saveRpg } from './rpg.js';
 import { loadState, saveState, completeTask, purchaseDecoration, removeDuplicate, runRules, summarizeOrders, finishFestival, SALES, TRAINING_ORDERS, SERVICE_ORDERS, FESTIVAL_ORDERS } from './game.js';
 import { processCampusReward } from './integration.js';
 
 const loaded = loadState();
 const state = loaded.state;
+const rpgLoaded=loadRpg();
+const rpg=rpgLoaded.rpg;
+const renderScene=(state,options={})=>renderAdventure(state,rpg,options);
 const app = document.querySelector('#app');
 const dialog = document.querySelector('#game-dialog');
 const toastElement = document.querySelector('#toast');
-let persistent = loaded.persistent;
+let persistent = loaded.persistent && rpgLoaded.persistent;
 let selected = null;
 let currentView = null;
 let viewData = {};
@@ -18,8 +23,12 @@ let runToken = 0;
 let running = false;
 let preview = null;
 let drag = null;
-const names = ['訂單整理員', '自動服務工程師', '銷售分析師'];
-const skills = ['資料整理', '程式邏輯', '試算表分析'];
+let walkToken=0;
+let walking=false;
+let walkTimer=null;
+let walkResolve=null;
+const names = QUESTS.map(q=>q.name);
+const skills = QUESTS.map(q=>q.course);
 const descriptions = ['把資料分類、建立欄位，找出重複紀錄。', '設定條件，讓電腦依規則完成工作。', '利用公式與圖表，從數字中找到答案。'];
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const icon = (name, cls = '') => {
@@ -27,7 +36,7 @@ const icon = (name, cls = '') => {
   return `<svg class="icon ${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${paths[name] || paths.shop}"/></svg>`;
 };
 const btn = (action, label, cls = 'primary', attrs = '') => `<button type="button" class="${cls}" data-action="${action}" ${attrs}>${label}</button>`;
-const level = () => state.finalComplete ? 4 : 1 + Number(state.completed[0]) + Number(state.completed[1]);
+const level = () => heroLevel(state);
 const count = () => state.completed.filter(Boolean).length;
 
 function toast(message) {
@@ -37,29 +46,74 @@ function toast(message) {
   toastTimer = setTimeout(() => toastElement.classList.remove('visible'), 4400);
 }
 function persist() {
-  if (!saveState(state)) {
+  if (!saveState(state) || !saveRpg(rpg)) {
     if (persistent) toast('目前瀏覽器無法保存進度，你仍可繼續遊玩。離開頁面後可能遺失本次進度。');
     persistent = false;
   }
 }
 function render() {
   const home = location.hash !== '#shop';
-  app.innerHTML = `<header class="topbar"><a class="brand" href="#home" aria-label="資處萌萌店長首頁"><span class="brand-icon">${icon('shop')}</span><span>資處萌萌店長<small>MOE MOE SHOP</small></span></a><span class="header-note">校園小店 × 資訊大冒險</span><span class="edition">一起開店 · 慢慢玩</span></header>
+  app.innerHTML = `<header class="topbar"><a class="brand" href="#home" aria-label="資處萌萌冒險首頁"><span class="brand-icon">${icon('shop')}</span><span>資處萌萌冒險<small>DATA QUEST RPG</small></span></a><span class="header-note">闖過三關，認識資處科</span><span class="edition">資料迷霧之島</span></header>
     ${!persistent ? '<div class="storage-banner" role="status">本次進度無法保存；遊戲仍可正常操作，請勿關閉或重新整理頁面。</div>' : ''}
     ${home ? homeHTML() : shopHTML()}
-    <footer class="site-footer"><span>一間小店，三種資訊超能力。</span><span>資料處理科 · 互動學習體驗</span></footer>`;
+    <footer class="site-footer"><span>把關卡做過的事，連回資處科的學習。</span><span>資料處理科 · 課程探索 RPG</span></footer>`;
 }
 function homeHTML() {
-  return `<main class="game-cover"><header class="cover-title"><span class="cover-ribbon">資料處理科 · 互動經營小遊戲</span><h1>資處萌萌<span>店長</span></h1><p>用資訊小技能，開一間智慧小店！</p></header><section class="cover-world home-scene" aria-label="資處萌萌店長的花園小店">${renderScene(state,{interactive:false})}<span class="cover-sticker">整理訂單<br>小店升級！</span></section><div class="cover-start">${btn('enter',`${icon('play')}${state.started?'繼續經營':'開始經營'}｜資處萌萌店長`,'primary hero-cta')}<p>約 5–8 分鐘 · 沒有倒數 · 進度自動保存</p><details class="cover-howto"><summary>怎麼玩？</summary><p>整理訂單、設定助手規則，再用公式與圖表找答案。完成三個任務，就能迎接校慶開幕日！設備會加入店內，星星可以自由裝飾小店。</p></details><a class="direct-entry" href="#shop">直接進入店面 →</a></div></main>`;
+  return `<main class="rpg-cover"><div class="rpg-cover-copy"><span class="rpg-eyebrow">DATA QUEST · 資處科課程探索 RPG</span><h1>資處萌萌冒險<span>資料迷霧之島</span></h1><p class="cover-story">校慶系統被雜訊打亂了。<br>帶著你的助手，找回三枚知識符文！</p>${btn('enter',`${icon('play')}${state.started?'繼續冒險':'開始冒險'}`,'primary hero-cta')}<div class="cover-runes">${QUESTS.map((q,i)=>`<span>${icon(['tasks','cup','chart'][i])}${q.course}</span>`).join('')}</div><p class="rpg-cover-note">探索地圖 · NPC 任務 · 實作解謎 · 課程圖鑑<br>沒有倒數，不用刷怪，進度自動保存。</p><a class="direct-entry" href="#shop">直接進入冒險地圖 →</a></div><div class="rpg-cover-map">${renderScene(state,{interactive:false})}<span class="cover-map-label">三座學習據點，一場校慶救援。</span></div></main>`;
 }
 function shopHTML() {
-  const next = state.completed.findIndex(x=>!x);
-  return `<main class="shop-layout"><div class="shop-heading"><a class="back-link" href="#home">${icon('arrow')}返回首頁</a><span class="manager-token">${avatarSvg(state.avatar)}</span><div class="store-identity"><span class="eyebrow">MY LITTLE SMART SHOP</span><h1>${esc(state.name)}<span class="level-badge">Lv.${level()} ${state.finalComplete?'校園明星店':'成長中的小店'}</span></h1></div><div class="stats"><span class="star-pill">${icon('star')}<strong>${state.stars}</strong><small>裝飾星星</small></span><span class="progress-pill"><strong>${count()} <small>/ 3</small></strong><small>任務完成</small></span></div></div>
-    <div class="game-grid"><aside class="journey"><div class="section-kicker">SHOP JOURNEY</div><h2>今天也讓小店<br>進步一點點。</h2><p class="muted">點選設備或任務，開始你的店長日常。</p><ol class="journey-list">${names.map((name,i)=>`<li class="${state.completed[i]?'done': next===i?'current':''}"><button data-action="task" data-index="${i}" ${i>0&&!state.completed[i-1]?'disabled':''}><span class="step-number">${icon(state.completed[i]?'check':['tasks','cup','chart'][i])}</span><span><strong>${name}</strong><small>${skills[i]}${state.completed[i]?' · 已完成':''}</small></span>${state.completed[i]?'<span class="tiny-done">完成</span>':''}</button></li>`).join('')}</ol><button class="festival-entry ${state.finalComplete?'completed':''}" data-action="festival" ${count()<3?'disabled':''}>${icon('award')}<span><strong>校慶開幕日</strong><small>${state.finalComplete?'已開幕 · 歡迎再次挑戰': count()<3?'完成三項任務後解鎖':'準備好了，迎接校慶！'}</small></span><span>↗</span></button><div class="journey-note">${icon('info')}設備隨任務升級，裝飾自由選。<br>不用花星星，也能完整通關。</div></aside>
-    <section class="shop-stage" aria-label="我的店面"><div class="stage-top"><span><i class="live-dot"></i>${state.finalComplete?'校慶營業中':'小店準備中'}</span><span>點選店內設備，動手試試看</span></div><div class="scene-region">${renderScene(state)}</div><div class="stage-message">${icon(state.finalComplete?'award':'leaf')}<span>${state.finalComplete?'智慧小店開幕成功！你是資處小店長。':count()===0?'歡迎新店長！先把混在一起的訂單整理好吧。':count()===1?'電子訂單機上線了！接著教助手正確出餐。':count()===2?'助手學會分冷熱了！來看看今天的銷售數字。':'設備全到齊！準備迎接校慶開幕日。'}</span></div></section></div>
-    <nav class="bottom-actions" aria-label="店長操作">${btn('tasks',`${icon('tasks')}<span>任務<small>讓小店升級</small></span>`,'nav-button')}${btn('decor',`${icon('decor')}<span>裝飾<small>佈置你的風格</small></span>`,'nav-button')}${btn('results',`${icon('award')}<span>我的成果<small>收集成長足跡</small></span>`,'nav-button')}</nav></main>`;
+  const next=state.completed.findIndex(x=>!x);
+  const xp=experience(state);
+  return `<main class="shop-layout adventure-layout"><div class="rpg-playerbar"><a class="back-link" href="#home">${icon('arrow')}返回首頁</a><span class="manager-token">${avatarSvg(state.avatar)}</span><div class="store-identity"><span class="rpg-eyebrow">INFORMATION APPRENTICE</span><h1>${esc(state.name)}<span class="level-badge">Lv.${level()} ${state.finalComplete?'資料勇者':'資訊見習生'}</span></h1><div class="xp-track" aria-label="經驗值 ${xp}"><i style="width:${xp/125*100}%"></i></div><small>${xp} XP · 闖關提升冒險等級</small></div><div class="stats"><span class="star-pill">${icon('star')}<strong>${state.stars}</strong><small>探險星</small></span><span class="progress-pill"><strong>${count()} / 3</strong><small>知識符文</small></span></div></div><div class="rpg-world-heading"><div><span class="rpg-eyebrow">CHAPTER 01</span><h2>資料迷霧之島</h2></div><span class="chapter-status">${state.finalComplete?'校慶系統已修復':count()===3?'雜訊核心的封印解除了！':'跟著石板路，尋找知識的守護者。'}</span></div><section class="adventure-panel" aria-label="冒險地圖"><div class="scene-region">${renderScene(state)}</div><div class="rpg-world-caption"><span>${icon('leaf')}${state.finalComplete?'資料迷霧解除！可以回訪 NPC，練習你的技能。':next>=0?`目前任務：${QUESTS[next].name} · ${QUESTS[next].course}`:'前往雜訊核心，綜合運用三種技能。'}</span><span>點選據點自動沿路走 · 也能用方向鍵</span></div></section><div class="world-controls"><div class="dpad" aria-label="角色移動">${btn('move','↑','dpad-up','data-dx="0" data-dy="-1" aria-label="向上移動"')}${btn('move','←','dpad-left','data-dx="-1" data-dy="0" aria-label="向左移動"')}${btn('move','↓','dpad-down','data-dx="0" data-dy="1" aria-label="向下移動"')}${btn('move','→','dpad-right','data-dx="1" data-dy="0" aria-label="向右移動"')}</div><p class="rpg-move-hint" role="status" aria-live="polite">沿石板路探索，走近 NPC 按「對話」。</p>${btn('talk',`${icon('info')}對話 / 調查`,'secondary talk-button')}</div><ol class="journey-list rpg-quest-strip">${QUESTS.map((q,i)=>`<li class="${state.completed[i]?'done':next===i?'current':''}"><button data-action="travel" data-index="${i}"><span class="step-number">${icon(state.completed[i]?'check':['tasks','cup','chart'][i])}</span><span><strong>${q.place}</strong><small>${q.course}</small></span></button></li>`).join('')}</ol><button class="festival-entry rpg-boss-entry" data-action="travel" data-index="3">${icon('award')}<span><strong>最終任務・校慶救援</strong><small>${state.finalComplete?'已完成 · 可再次挑戰':count()<3?'收集三枚符文，解除雜訊核心封印':'封印已解除，前往綜合應用挑戰'}</small></span><span>↗</span></button><nav class="bottom-actions" aria-label="冒險選單">${btn('tasks',`${icon('tasks')}<span>任務日誌<small>尋找下一個目標</small></span>`,'nav-button')}${btn('knowledge',`${icon('chart')}<span>課程圖鑑<small>這就是資處科！</small></span>`,'nav-button')}${btn('results',`${icon('award')}<span>我的角色<small>符文與冒險紀錄</small></span>`,'nav-button')}</nav></main>`;
+}
+function stopWalk() {
+  walkToken++;
+  clearTimeout(walkTimer);
+  if(walkResolve){walkResolve(false);walkResolve=null;}
+  walking=false;
+  document.querySelector('.rpg-hero')?.classList.remove('is-walking');
+}
+function updateHero() {
+  const hero=document.querySelector('.scene-region .rpg-hero');
+  if(hero){hero.setAttribute('transform',`translate(${rpg.hero.x*TILE+20} ${rpg.hero.y*TILE+20})`);hero.dataset.x=rpg.hero.x;hero.dataset.y=rpg.hero.y;}
+  if(!saveRpg(rpg)&&persistent){persistent=false;toast('本次探索位置無法保存；你仍可繼續遊玩。');}
+}
+function worldMessage(message) {
+  const el=document.querySelector('.rpg-move-hint');if(el)el.textContent=message;
+}
+function moveHero(dx,dy) {
+  if(dialog.open)return;
+  stopWalk();
+  const next={x:rpg.hero.x+dx,y:rpg.hero.y+dy};
+  if(!passable(next.x,next.y)){worldMessage('這裡是草木或建築。沿著石板路前進，點選據點也能自動帶路。');return;}
+  rpg.hero=next;updateHero();
+  const near=nearestNPC(next);
+  worldMessage(near>=0?`${near===3?'雜訊核心':QUESTS[near].npc}就在附近，按「對話 / 調查」或 Enter。`:'沿石板路探索，走近 NPC 按「對話」。');
+}
+function talk() {
+  const i=nearestNPC(rpg.hero);
+  if(i<0){worldMessage('附近沒有守護者。點選地圖據點，角色會沿路走過去。');return;}
+  openModal('npc',{index:i});
+}
+async function travel(index) {
+  if(!Number.isInteger(index)||index<0||index>3)return;
+  if(dialog.open)closeModal();
+  if(!canEnter(state.completed,index)){openModal('npc',{index});return;}
+  stopWalk();
+  const token=walkToken,target=index===3?BOSS:QUESTS[index].pos;
+  const path=findPath(rpg.hero,target);
+  walking=true;document.querySelector('.rpg-hero')?.classList.add('is-walking');
+  worldMessage(`正在前往${index===3?'雜訊核心':QUESTS[index].place}…`);
+  for(const step of path){
+    const active=await new Promise(resolve=>{walkResolve=resolve;walkTimer=setTimeout(()=>{walkResolve=null;resolve(token===walkToken);},matchMedia('(prefers-reduced-motion: reduce)').matches?25:110);});
+    if(!active)return;
+    rpg.hero={...step};updateHero();
+  }
+  walking=false;document.querySelector('.rpg-hero')?.classList.remove('is-walking');
+  if(token===walkToken)openModal('npc',{index});
 }
 function cancelRun() {
+  stopWalk();
   runToken++;
   timers.forEach((resolve,id)=>{clearTimeout(id);resolve(false);});
   timers.clear();
@@ -93,6 +147,22 @@ function openModal(view, data = {}) {
   dialog.scrollTop = 0;
   requestAnimationFrame(()=>dialog.querySelector('input, button:not(.close-modal)')?.focus());
 }
+function courseBanner(i) {
+  const q=QUESTS[i];
+  return `<div class="course-banner"><span>資處科學習連結</span><strong>${q.course}</strong><small>${q.skill}</small></div>`;
+}
+function npcHTML() {
+  const i=viewData.index;
+  if(i===3)return shell('雜訊核心・最後的封印','FINAL QUEST · 校慶系統救援',`<div class="npc-dialogue"><span class="npc-portrait">${robotSvg('cold')}</span><p>「你收集的三種技能，能讓校慶系統恢復正常嗎？」</p></div><p class="dialog-lead">${canEnter(state.completed,3)?'秩序、邏輯、洞察符文都在發光。這次沒有新的答案提示，請把資料整理、程式邏輯與營收計算用在一起！':'目前封印尚未解除。先完成三座據點的實作任務，取得三枚知識符文。'}</p><div class="rune-inventory">${QUESTS.map((q,j)=>`<span class="${state.completed[j]?'obtained':''}">${state.completed[j]?'◆':'◇'} ${q.rune}</span>`).join('')}</div>${canEnter(state.completed,3)?btn('festival','挑戰雜訊核心','primary full-width'):btn('close','回到地圖尋找符文','secondary full-width')}`);
+  const q=QUESTS[i];
+  return shell(q.name,`QUEST 0${i+1} · ${q.place}`,`<div class="npc-dialogue"><span class="npc-portrait">${avatarSvg(q.color)}</span><div><strong>${q.npc}</strong><p>「${q.brief}」</p></div></div>${courseBanner(i)}<p class="quest-objective"><strong>這一關你要動手做：</strong>${q.task}</p>${canEnter(state.completed,i)?btn('accept-task',state.completed[i]?'再次實作這項技能':'接受任務，動手修復','primary full-width',`data-index="${i}"`):`<p class="feedback">先取得前一座據點的知識符文，才能解除這裡的封印。</p>${btn('close','先回地圖探索','secondary full-width')}`}${state.completed[i]?btn('knowledge','查看取得的課程知識','text-button full-width'):''}`);
+}
+function journalHTML() {
+  return shell('冒險任務日誌','QUEST LOG · 每一步都有學習目標',`<p class="dialog-lead">前往據點，跟 NPC 說話，再用實際操作取得符文。</p><div class="task-cards">${QUESTS.map((q,i)=>`<button class="task-card" data-action="travel" data-index="${i}"><span class="task-art">${icon(state.completed[i]?'check':['tasks','cup','chart'][i])}</span><span><small>QUEST 0${i+1} · ${state.completed[i]?'已取得符文':canEnter(state.completed,i)?'可探索':'尚有封印'}</small><strong>${q.name}</strong><span>${q.course}</span><em>${q.task}</em></span><b>↗</b></button>`).join('')}</div>${btn('travel',`${icon('award')}最終任務・校慶救援`,'secondary full-width','data-index="3"')}`);
+}
+function knowledgeHTML() {
+  return shell('這就是資處科的學習！','COURSE CODEX · 從操作連回課程',`<p class="dialog-lead">你使用的每個招式，都來自資料與程式的實作。圖鑑記錄已完成的操作，不代表正式證照。</p><div class="course-codex">${QUESTS.map((q,i)=>`<article class="course-card ${state.completed[i]?'learned':'unlearned'}"><div class="course-card-top"><span>0${i+1} · ${q.rune}</span><b>${state.completed[i]?'已取得':'探索中'}</b></div><h3>${q.course}</h3>${state.completed[i]?`<dl><dt>我在關卡做了什麼？</dt><dd>${q.task}</dd><dt>這與資處科有什麼關係？</dt><dd>${q.learned}</dd><dt>生活中會用在哪裡？</dt><dd>${q.reality}</dd><dt>可以繼續挑戰</dt><dd>${q.practical}</dd></dl>`:`<p>完成「${q.name}」後，在這裡收集你的實作紀錄與生活應用。</p>${btn('travel','前往據點探索','secondary',`data-index="${i}"`)}`}</article>`).join('')}</div><p class="small-note">以上為常見學習領域的入門體驗。學校實際課程與年級安排，請以正式公告為準。</p>`);
+}
 function shell(title, subtitle, body, wide = false) {
   return `<div class="dialog-shell ${wide?'wide':''}"><header class="dialog-header"><div><span class="eyebrow">${subtitle}</span><h2 id="dialog-title">${title}</h2></div>${btn('close', icon('close'),'close-modal','aria-label="關閉視窗"')}</header>${body}</div>`;
 }
@@ -107,9 +177,10 @@ function drawModal() {
   const focused=dialog.contains(document.activeElement)?document.activeElement:null;
   const focusAttrs=focused?['data-action','data-index','data-group','data-value','data-pick','data-drop','data-kind'].filter(a=>focused.hasAttribute(a)).map(a=>`[${a}="${CSS.escape(focused.getAttribute(a))}"]`).join(''):'';
   let html='';
-  if (currentView==='intro') html=shell('歡迎，新店長！','HELLO, LITTLE MANAGER',`<p class="dialog-lead">一起用資訊技能，把小店變聰明！</p><form id="intro-form"><label class="field-label" for="shop-name">先為小店取個名字 <small>最多 12 個字</small></label><input id="shop-name" name="name" maxlength="24" value="${esc(state.name)}" autocomplete="off" required><fieldset class="avatar-picker"><legend>選一位店長</legend>${['mint','peach'].map((a,i)=>`<label class="avatar-option"><input type="radio" name="avatar" value="${a}" ${state.avatar===a?'checked':''}><span class="avatar-portrait ${a}">${avatarSvg(a)}</span><strong>${i===0?'薄荷店長':'蜜桃店長'}</strong></label>`).join('')}</fieldset>${feedback()}<button class="primary full-width" type="submit">${icon('shop')}準備好，開店囉！</button><p class="small-note">進度儲存在這個瀏覽器，不需要帳號。</p></form>`);
-  else if(currentView==='tasks') html=shell('小店的升級任務','THREE LITTLE SUPERPOWERS',`<p class="dialog-lead">不急，跟著自己的步調，讓設備一個一個到齊。</p><div class="task-cards">${names.map((n,i)=>`<button class="task-card" data-action="task" data-index="${i}" ${i>0&&!state.completed[i-1]?'disabled':''}><span class="task-art">${icon(['tasks','cup','chart'][i])}</span><span><small>MISSION 0${i+1} · ${skills[i]}</small><strong>${n}</strong><span>${descriptions[i]}</span><em>${state.completed[i]?'已完成 · 再玩一次':i>0&&!state.completed[i-1]?'先完成前一項任務':'首次完成 +2 顆裝飾星星'}</em></span><b>↗</b></button>`).join('')}</div>${btn('festival',`${icon('award')}校慶開幕日${count()<3?' · 尚未解鎖':''}`,'secondary full-width', count()<3?'disabled':'')}`);
-  else if(currentView==='orders') html=ordersHTML();
+  if(currentView==='intro')html=shell('歡迎，資訊見習生！','PROLOGUE · 校慶系統的求救信',`<div class="story-intro"><span>來自島上的求救信</span><p>「校慶系統被雜訊打亂了！檔案館、程式工坊與分析塔各守著一枚知識符文，請幫我們恢復系統。」</p></div><form id="intro-form"><label class="field-label" for="shop-name">你的冒險者名字 <small>1～12 個字</small></label><input id="shop-name" name="name" maxlength="24" value="${esc(state.started?state.name:'萌萌見習生')}" autocomplete="off" required><fieldset class="avatar-picker"><legend>選擇你的角色</legend>${['mint','peach'].map((a,i)=>`<label class="avatar-option"><input type="radio" name="avatar" value="${a}" ${state.avatar===a?'checked':''}><span class="avatar-portrait ${a}">${avatarSvg(a)}</span><strong>${i===0?'薄荷見習生':'蜜桃見習生'}</strong></label>`).join('')}</fieldset>${feedback()}<button class="primary full-width" type="submit">${icon('play')}帶著助手，展開冒險</button><p class="small-note">舊版已取得的進度與星星會保留，不需要重複領獎。</p></form>`);
+  else if(currentView==='npc')html=npcHTML();
+  else if(currentView==='tasks')html=journalHTML();
+  else if(currentView==='knowledge')html=knowledgeHTML();  else if(currentView==='orders') html=ordersHTML();
   else if(currentView==='rules') html=rulesHTML();
   else if(currentView==='analysis') html=analysisHTML();
   else if(currentView==='festival') html=festivalHTML();
@@ -118,6 +189,8 @@ function drawModal() {
   else if(currentView==='results') html=resultsHTML();
   else if(currentView==='order-info') html=shell('電子訂單機','MY SMART EQUIPMENT',`<p class="dialog-lead">每筆資料各就各位。A101 只保留一筆，三張訂單都很清楚！</p>${orderRows(TRAINING_ORDERS.filter((_,i)=>i!==2), false)}<div class="info-panel"><strong>資料整理</strong><p>${descriptions[0]}</p></div>${btn('task','重玩訂單整理員','secondary','data-index="0"')}`);
   else if(currentView==='rules-info') html=shell('助手工作站','MY SMART EQUIPMENT',`<p class="dialog-lead">助手記得你的出餐規則，現在會自己分辨冷熱飲！</p><div class="rule-summary"><span>冷飲 → ${cupLabel(state.rules.cold)}</span><span>熱飲 → ${cupLabel(state.rules.hot)}</span></div><div class="robot-demo">${icon('cup')}<span>收到訂單，依條件出餐。</span></div>${btn('task','重玩自動服務工程師','secondary','data-index="1"')}`);
+  const lessonIndex={orders:0,rules:1,analysis:2}[currentView];
+  if(lessonIndex!==undefined)html=html.replace('</header>','</header>'+courseBanner(lessonIndex));
   dialog.innerHTML=html;
   if(dialog.open&&focusAttrs) {
     const replacement=dialog.querySelector(focusAttrs);
@@ -134,11 +207,15 @@ function ordersHTML() {
   const step=viewData.step||'fields';
   if (step==='dedup') return shell('找出重複的訂單','MISSION 01 · 步驟 B / B',`<p class="dialog-lead">訂單編號是每筆訂單的識別碼，點選並移除重複匯入的那一筆 A101。</p><p class="hint-line">保留其中一筆 A101，其他不同編號的訂單都要留下。</p>${orderRows(viewData.orders,true)}${feedback()}<div class="dialog-bottom">${btn('dedup-check','確認整理完成','primary')}<span class="small-note">有效訂單應該有 3 筆</span></div>`);
   const assigned=viewData.assigned||{};
-  return shell('訂單整理員','MISSION 01 · 步驟 A / B',`<p class="dialog-lead">訂單混在一起了！幫我整理好，才不會送錯餐。</p><div class="customer-bubble"><span class="customer-dot"></span>「我是小晴，想買 2 杯奶茶！」</div><p class="hint-line">拖曳資料卡到欄位，或先點卡片、再點欄位。</p><div class="data-cards">${cards.map(([key,value])=>`<button class="data-card" data-pick="${key}" data-kind="order" ${Object.values(assigned).includes(key)?'disabled':''}>${value}</button>`).join('')}</div><div class="field-grid">${fields.map(([key,label])=>`<button class="field-slot" data-drop="${key}" data-kind="order"><small>${label}</small><strong>${assigned[key]?cards.find(c=>c[0]===assigned[key])[1]:'放在這裡'}</strong></button>`).join('')}</div>${feedback()}${btn('fields-check','建立這筆訂單','primary full-width')}`);
+  return shell('檔案館試煉・建立資料表','QUEST 01 · 步驟 A / B',`<p class="dialog-lead">把校慶訂單寫回資料表。每個欄位代表一種資料，四張資料卡要各就各位。</p><div class="customer-bubble"><span class="customer-dot"></span>「我是小晴，想買 2 杯奶茶！」</div><p class="hint-line">拖曳資料卡到欄位，或先點卡片、再點欄位。</p><div class="data-cards">${cards.map(([key,value])=>`<button class="data-card" data-pick="${key}" data-kind="order" ${Object.values(assigned).includes(key)?'disabled':''}>${value}</button>`).join('')}</div><div class="field-grid">${fields.map(([key,label])=>`<button class="field-slot" data-drop="${key}" data-kind="order"><small>${label}</small><strong>${assigned[key]?cards.find(c=>c[0]===assigned[key])[1]:'放在這裡'}</strong></button>`).join('')}</div>${feedback()}${btn('fields-check','建立這筆訂單','primary full-width')}`);
 }
 function cupLabel(cup) {return cup==='cold'?'冷飲杯':cup==='hot'?'熱飲杯':'尚未設定';}
 function rulesHTML() {
-  return shell('自動服務工程師','MISSION 02 · 設定 → 試跑 → 修正',`<p class="dialog-lead">助手常常拿錯杯子，幫它設定出餐規則！杯子卡可以重複使用。</p><div class="cup-cards">${['cold','hot'].map(c=>`<button class="cup-card ${c}" data-pick="${c}" data-kind="rule">${icon('cup')}<strong>${cupLabel(c)}</strong><small>${c==='cold'?'適合冰涼飲料':'適合溫熱飲料'}</small></button>`).join('')}</div><p class="hint-line">拖曳或先點杯子卡，再點分支。兩邊也可以放同一種杯子。</p><div class="rule-flow"><div class="flow-node">讀取訂單</div><span class="flow-arrow">↓</span><div class="condition-node">如果飲料是「冷飲」</div><div class="branches"><div class="branch" data-branch="cold"><span>是 · 冷飲</span><button class="rule-slot" data-drop="cold" data-kind="rule">${icon('cup')}<strong>${cupLabel(state.rules.cold)}</strong></button></div><div class="branch" data-branch="hot"><span>否則 · 熱飲</span><button class="rule-slot" data-drop="hot" data-kind="rule">${icon('cup')}<strong>${cupLabel(state.rules.hot)}</strong></button></div></div><span class="flow-arrow">↓</span><div class="flow-node">送出飲料</div></div><div id="run-results" class="run-results" aria-live="polite"><p>測試訂單：冰奶茶、熱可可、冰果汁</p></div>${feedback()}${btn('run-rules',`${icon('play')}試跑這套規則`,'primary full-width')}`);
+  return shell('程式工坊・條件判斷','QUEST 02 · 設定 → 試跑 → 除錯',`<p class="dialog-lead">機器守衛只會照程式做事。設定 if / else 分支，讓它依訂單條件選杯；杯子卡可以重複使用。</p><div class="cup-cards">${['cold','hot'].map(c=>`<button class="cup-card ${c}" data-pick="${c}" data-kind="rule">${icon('cup')}<strong>${cupLabel(c)}</strong><small>${c==='cold'?'適合冰涼飲料':'適合溫熱飲料'}</small></button>`).join('')}</div><p class="hint-line">拖曳或先點杯子卡，再點分支。兩邊也可以放同一種杯子。</p><div class="rule-flow"><div class="flow-node">讀取訂單</div><span class="flow-arrow">↓</span><div class="condition-node">如果飲料是「冷飲」</div><div class="branches"><div class="branch" data-branch="cold"><span>是 · 冷飲</span><button class="rule-slot" data-drop="cold" data-kind="rule">${icon('cup')}<strong>${cupLabel(state.rules.cold)}</strong></button></div><div class="branch" data-branch="hot"><span>否則 · 熱飲</span><button class="rule-slot" data-drop="hot" data-kind="rule">${icon('cup')}<strong>${cupLabel(state.rules.hot)}</strong></button></div></div><span class="flow-arrow">↓</span><div class="flow-node">送出飲料</div></div><details class="program-preview"><summary>看看這些積木對應的程式</summary><pre><code>if (order.type === 'cold') {
+  cup = '${state.rules.cold||'尚未設定'}';
+} else {
+  cup = '${state.rules.hot||'尚未設定'}';
+}</code></pre></details><div id="run-results" class="run-results" aria-live="polite"><p>測試輸入：冰奶茶、熱可可、冰果汁</p></div>${feedback()}${btn('run-rules',`${icon('play')}試跑這套規則`,'primary full-width')}`);
 }
 function salesTable(calculated) {
   const summary=summarizeOrders(SALES);
@@ -155,30 +232,27 @@ function analysisHTML() {
     return shell(info?'小店分析看板':'讀圖，做個好決定',info?'MY SMART EQUIPMENT':'MISSION 03 · 步驟 B / B',`${salesTable(true)}${chartHTML(viewData.metric||'quantity')}${info?`<div class="info-panel"><strong>人氣王是餅乾，營收王是奶茶。</strong><p>賣最多，不一定營收最高！這裡的營收尚未扣除成本，不等於利潤。</p></div>${btn('task','重玩銷售分析師','secondary','data-index="2"')}`:`<div class="question-box"><small>決策 ${question+1} / 2</small><h3>${question===0?'明天要替賣出數量最多的商品多準備一些，請選擇商品。':'今天哪個商品帶來最高營收？'}</h3><div class="answer-buttons">${SALES.map(o=>btn('answer',esc(o.name),'secondary',`data-product="${o.id}"`)).join('')}</div></div>${feedback()}`}`);
   }
   const formula=viewData.formula||[];
-  return shell('銷售分析師','MISSION 03 · 步驟 A / B',`<p class="dialog-lead">今天哪個商品最受歡迎？用表格幫小店找答案！</p>${salesTable(!!viewData.calculated)}<p class="hint-line">依序點選公式積木，或拖到空格裡。先算一筆，再套用整欄。</p><div class="formula-cards">${['單價','×','銷量'].map((v,i)=>`<button class="data-card" data-pick="${i}" data-kind="formula" ${formula.includes(v)?'disabled':''}>${v}</button>`).join('')}</div><div class="formula-line"><strong>營收 ＝</strong>${[0,1,2].map(i=>`<button class="formula-slot" data-drop="${i}" data-kind="formula" aria-label="公式第 ${i+1} 格">${esc(formula[i]||'？')}</button>`).join('')}${btn('formula-reset','重排','text-button')}</div><div class="cell-formula">D2 <code>${formula.join('|')==='單價|×|銷量'?'=B2*C2':'先組合上方公式'}</code></div>${feedback()}${viewData.calculated?btn('analysis-chart','看看銷售圖表 →','primary full-width'):btn('formula-apply','套用整欄','primary full-width')}`);
+  return shell('分析塔・試算表公式','QUEST 03 · 步驟 A / B',`<p class="dialog-lead">用儲存格公式計算校慶銷售資料。先觀察 B 欄與 C 欄，再找出營收的計算方式。</p>${salesTable(!!viewData.calculated)}<p class="hint-line">依序點選公式積木，或拖到空格裡。先算一筆，再套用整欄。</p><div class="formula-cards">${['單價','×','銷量'].map((v,i)=>`<button class="data-card" data-pick="${i}" data-kind="formula" ${formula.includes(v)?'disabled':''}>${v}</button>`).join('')}</div><div class="formula-line"><strong>營收 ＝</strong>${[0,1,2].map(i=>`<button class="formula-slot" data-drop="${i}" data-kind="formula" aria-label="公式第 ${i+1} 格">${esc(formula[i]||'？')}</button>`).join('')}${btn('formula-reset','重排','text-button')}</div><div class="cell-formula">D2 <code>${formula.join('|')==='單價|×|銷量'?'=B2*C2':'先組合上方公式'}</code></div>${feedback()}${viewData.calculated?btn('analysis-chart','看看銷售圖表 →','primary full-width'):btn('formula-apply','套用整欄','primary full-width')}`);
 }
 function festivalHTML() {
   const step=viewData.step||'dedup';
-  return shell('校慶開幕日','FINAL CHALLENGE · 把三種技能用在一起',`<p class="dialog-lead">校慶客人來了！先檢查重複訂單，再讓助手出餐，最後結算營收。</p><div class="festival-steps"><span class="${step==='dedup'?'active':''}">1 整理訂單</span><span class="${step==='serve'?'active':''}">2 自動出餐</span><span class="${step==='calculate'?'active':''}">3 營收結算</span></div>${orderRows(viewData.orders,step==='dedup',true)}<div id="run-results" class="run-results" aria-live="polite"></div>${feedback()}${step==='dedup'?btn('festival-dedup','確認有效訂單','primary full-width'):step==='serve'?`<p class="hint-line">沿用已儲存的規則：冷飲 → ${cupLabel(state.rules.cold)}，熱飲 → ${cupLabel(state.rules.hot)}。</p>${btn('festival-serve',`${icon('play')}開始出餐`,'primary full-width')}`:btn('festival-calculate','計算今日營收','primary full-width')}`);
+  const repaired={dedup:0,serve:1,calculate:2}[step];
+  return shell('雜訊核心・校慶救援','FINAL QUEST · 綜合應用',`<div class="boss-battle"><div class="noise-core" aria-hidden="true"><i></i><b>?</b></div><div><strong>雜訊核心的三層干擾</strong><p>修復進度 <span class="repair-count">${repaired}</span> / 3</p><div class="boss-health"><i style="width:${(3-repaired)/3*100}%"></i></div></div></div><p class="dialog-lead">${step==='dedup'?'第一層：排除重複訂單，用資料整理技能修復輸入。':step==='serve'?'第二層：沿用你設定的條件分支，讓助手正確處理訂單。':'第三層：依有效資料計算營收，讓校慶系統重新啟動。'}</p><div class="festival-steps"><span class="${step==='dedup'?'active':''}">資料整理</span><span class="${step==='serve'?'active':''}">程式邏輯</span><span class="${step==='calculate'?'active':''}">試算表計算</span></div>${orderRows(viewData.orders,step==='dedup',true)}<div id="run-results" class="run-results" aria-live="polite"></div>${feedback()}${step==='dedup'?btn('festival-dedup','修復輸入：確認有效訂單','primary full-width'):step==='serve'?`<p class="hint-line">已保存的程式規則：冷飲 → ${cupLabel(state.rules.cold)}，否則 → ${cupLabel(state.rules.hot)}。</p>${btn('festival-serve',`${icon('play')}執行規則，修復出餐`,'primary full-width')}`:btn('festival-calculate','執行計算，解除最後干擾','primary full-width')}`);
 }
 function successHTML() {
   if(viewData.final) {
-    const s=viewData.summary;
-    return shell('智慧小店開幕成功！','GRAND OPENING · Lv.4 校園明星店',`<div class="celebration" aria-hidden="true"><span>✦</span>${icon('award')}<span>✦</span></div><div class="final-numbers"><div><strong>${s.orderCount}</strong><span>筆有效訂單</span></div><div><strong>${s.cupCount}</strong><span>杯飲料</span></div><div><strong>${s.total}</strong><span>元總營收</span></div></div><div class="receipt">${s.lines.map(o=>`<p><span>${esc(o.product)} ${o.price} × ${o.quantity}</span><strong>${o.revenue} 元</strong></p>`).join('')}<p><span>重複訂單已排除</span><strong>合計 ${s.total} 元</strong></p></div><div class="badge-unlocked">${icon('award')}<span><strong>資處小店長</strong><small>遊戲紀念徽章 · 紀念你的第一間智慧小店</small></span></div><p class="ending">原來資處科，能用資料與程式讓生活更方便！</p><div class="two-buttons">${btn('decor','繼續裝飾','primary')}${btn('results','查看我的成果','secondary')}</div><div class="two-buttons">${btn('tasks','重玩任務','text-button')}${btn('home','返回資處科首頁','text-button')}</div>`);
+    const summary=viewData.summary;
+    return shell('資料迷霧解除！','QUEST COMPLETE · 校慶系統已修復',`<div class="celebration">${icon('award')}</div><p class="dialog-lead centered">你用資料整理、程式邏輯與試算表計算，完成了校慶系統救援！</p><div class="final-numbers"><div><strong>${summary.orderCount}</strong><span>筆有效訂單</span></div><div><strong>${summary.cupCount}</strong><span>杯飲料</span></div><div><strong>${summary.total}</strong><span>元總營收</span></div></div><div class="receipt">${summary.lines.map(o=>`<p><span>${esc(o.product)} ${o.price} × ${o.quantity}</span><strong>${o.revenue} 元</strong></p>`).join('')}<p><span>重複紀錄未列入營收</span><strong>合計 ${summary.total} 元</strong></p></div><div class="badge-unlocked">${icon('award')}<span><strong>資處資料勇者</strong><small>遊戲紀念徽章 · 完成三個入門學習領域的實作體驗</small></span></div><div class="final-courses">${QUESTS.map(q=>`<span>◆ ${q.course}</span>`).join('')}</div><p class="ending">原來資處科，會學習用資料、程式與試算表解決問題！</p><div class="two-buttons">${btn('knowledge','打開課程圖鑑','primary')}${btn('close','回島上繼續探索','secondary')}</div>${btn('tasks','回訪任務與練習','text-button full-width')}`);
   }
-  const i=viewData.index;
-  const titles=['原來這就是資料整理！','你讓助手學會條件判斷！','賣最多，不一定營收最高！'];
-  const texts=['把資料放進正確欄位，再用編號識別每筆紀錄。','程式會依照條件，執行不同動作。','試算表能幫你計算，圖表能幫你看出差異。'];
-  const upgrades=['電子訂單機已加入店面','助手工作站已加入店面','分析看板與餅乾展示櫃已加入店面'];
-  return shell(titles[i],`MISSION 0${i+1} COMPLETE`, `<div class="success-seal">${icon('check')}</div><p class="dialog-lead centered">${texts[i]}</p><div class="upgrade-reward">${icon(['tasks','cup','chart'][i])}<strong>${upgrades[i]}</strong><span>${viewData.firstReward?'+2 顆裝飾星星':'重玩完成 · 首次獎勵已領取'}</span></div>${btn('close','看看升級後的小店','primary full-width')}${btn(i<2?'next-task':'festival',i<2?'繼續下一個任務 →':'挑戰校慶開幕日 →','text-button full-width',`data-index="${i+1}"`)}`);
+  const i=viewData.index,q=QUESTS[i];
+  return shell(`${q.rune}到手！`,`QUEST 0${i+1} COMPLETE`,`${courseBanner(i)}<div class="success-seal">${icon('check')}</div><div class="learning-reveal"><span>你剛做的，就是這項學習！</span><h3>${q.course}</h3><p>${q.learned}</p><strong>生活應用</strong><p>${q.reality}</p></div><div class="upgrade-reward"><strong>知識符文已收入課程圖鑑</strong><span>${viewData.firstReward?'+25 XP · +2 顆探險星':'重玩完成 · 經驗與首次星星不重複發放'}</span></div>${btn('close','帶著符文回到地圖','primary full-width')}${btn('travel',i<2?'前往下一位守護者 →':'前往雜訊核心 →','text-button full-width',`data-index="${i+1}"`)}`);
 }
-const decorGroups={sign:{name:'招牌',options:[['mint','薄荷綠'],['pink','柔和粉']]},chair:{name:'椅子',options:[['cat','貓咪'],['bear','熊熊']]},plant:{name:'盆栽',options:[['flower','小花'],['cactus','仙人掌']]}};
+const decorGroups={sign:{name:'營地屋頂',options:[['mint','薄荷綠'],['pink','柔和粉']]},chair:{name:'營地椅子',options:[['cat','貓咪'],['bear','熊熊']]},plant:{name:'營地盆栽',options:[['flower','小花'],['cactus','仙人掌']]}};
 function decorHTML() {
-  return shell('佈置你的小小夢想','MAKE IT YOURS',`<div class="decor-balance">${icon('star')}<strong>${state.stars} 顆裝飾星星</strong><span>每組解鎖 2 顆，組內免費切換</span></div><div class="decor-preview">${renderScene(state,{preview:preview||{},interactive:false})}<span class="preview-label">${preview?'預覽中 · 尚未套用':'目前店面'}</span></div><div class="decor-groups">${Object.entries(decorGroups).map(([key,g])=>`<section class="decor-group"><div><h3>${g.name}</h3><small>${state.unlocked[key]?'已解鎖 · 免費切換':'2 顆星星解鎖整組'}</small></div><div class="decor-options">${g.options.map(([value,label])=>btn('decor-preview',label,(preview?.[key]||state.decor[key])===value?'decor-option selected':'decor-option',`data-group="${key}" data-value="${value}"`)).join('')}</div>${btn('decor-apply',state.unlocked[key]?'套用造型':'解鎖並套用','secondary',`data-group="${key}"`)}</section>`).join('')}</div>${feedback()}<p class="small-note">先點造型預覽，再套用。設備自動升級，不消耗星星。</p>` , true);
+  return shell('冒險營地佈置','MAKE IT YOURS',`<div class="decor-balance">${icon('star')}<strong>${state.stars} 顆探險星</strong><span>每組解鎖 2 顆，組內免費切換</span></div><div class="decor-preview">${renderScene(state,{preview:preview||{},interactive:false})}<span class="preview-label">${preview?'預覽中 · 尚未套用':'目前營地'}</span></div><div class="decor-groups">${Object.entries(decorGroups).map(([key,g])=>`<section class="decor-group"><div><h3>${g.name}</h3><small>${state.unlocked[key]?'已解鎖 · 免費切換':'2 顆星星解鎖整組'}</small></div><div class="decor-options">${g.options.map(([value,label])=>btn('decor-preview',label,(preview?.[key]||state.decor[key])===value?'decor-option selected':'decor-option',`data-group="${key}" data-value="${value}"`)).join('')}</div>${btn('decor-apply',state.unlocked[key]?'套用造型':'解鎖並套用','secondary',`data-group="${key}"`)}</section>`).join('')}</div>${feedback()}<p class="small-note">探險星只用來佈置營地，不影響闖關。</p>` , true);
 }
 function resultsHTML() {
-  const choices=Object.entries(decorGroups).map(([g,data])=>`${data.name}：${data.options.find(o=>o[0]===state.decor[g])?.[1]||''}${state.unlocked[g]?'':'（預設）'}`).join(' · ');
-  return shell('我的店長成果','LITTLE STEPS, BIG IDEAS',`<div class="results-identity"><span class="avatar-mini ${state.avatar}">${avatarSvg(state.avatar)}</span><div><h3>${esc(state.name)}</h3><p>Lv.${level()} ${state.finalComplete?'校園明星店':'成長中的小店'} · ${state.avatar==='mint'?'薄荷店長':'蜜桃店長'}</p></div>${btn('rename','編輯','text-button')}</div><div class="skill-results">${skills.map((s,i)=>`<div class="skill-result ${state.completed[i]?'done':''}"><span>${icon(state.completed[i]?'check':['tasks','cup','chart'][i])}</span><div><strong>${s}<small>${state.completed[i]?'已完成':'等待探索'}</small></strong><p>${descriptions[i]}</p></div></div>`).join('')}</div><div class="info-panel"><strong>我的佈置</strong><p>${choices}</p></div><div class="badge-unlocked ${state.finalComplete?'':'locked'}">${icon('award')}<span><strong>${state.finalComplete?'資處小店長':'尚未取得紀念徽章'}</strong><small>${state.finalComplete?'遊戲完成紀念，不代表正式證照':'完成校慶開幕日後解鎖'}</small></span></div><p class="ending">原來資處科，能用資料與程式讓生活更方便！</p><div class="two-buttons">${btn('decor','繼續裝飾','primary')}${btn('tasks','重玩任務','secondary')}</div>${btn('home','返回資處科首頁','text-button full-width')}`);
+  return shell('我的冒險者紀錄','CHARACTER · 知識就是你的能力',`<div class="results-identity"><span class="avatar-mini ${state.avatar}">${avatarSvg(state.avatar)}</span><div><h3>${esc(state.name)}</h3><p>Lv.${level()} ${state.finalComplete?'資料勇者':'資訊見習生'} · ${experience(state)} XP</p></div>${btn('rename','編輯','text-button')}</div><div class="rune-inventory">${QUESTS.map((q,i)=>`<span class="${state.completed[i]?'obtained':''}">${state.completed[i]?'◆':'◇'} ${q.rune}</span>`).join('')}</div><div class="skill-results">${QUESTS.map((q,i)=>`<div class="skill-result ${state.completed[i]?'done':''}"><span>${icon(state.completed[i]?'check':['tasks','cup','chart'][i])}</span><div><strong>${q.course}<small>${state.completed[i]?'已完成實作':'尚待探索'}</small></strong><p>${q.skill}</p></div></div>`).join('')}</div><div class="badge-unlocked ${state.finalComplete?'':'locked'}">${icon('award')}<span><strong>${state.finalComplete?'資處資料勇者':'最終紀念徽章尚未解鎖'}</strong><small>${state.finalComplete?'紀念你的課程探索，不代表正式證照':'完成雜訊核心綜合任務後取得'}</small></span></div><div class="two-buttons">${btn('knowledge','查看課程圖鑑','primary')}${btn('decor','營地佈置','secondary')}</div>${btn('tasks','回訪任務與練習','text-button full-width')}`);
 }
 function startTask(i) {
   if(i<0||i>2||i>0&&!state.completed[i-1]) return;
@@ -259,6 +333,8 @@ async function animateService(orders,festival) {
     viewData.step='calculate';
     dialog.querySelector('[data-action="festival-serve"]').outerHTML=btn('festival-calculate','計算今日營收','primary full-width');
     dialog.querySelector('[data-action="festival-calculate"]').focus({preventScroll:true});
+    const repairs=dialog.querySelector('.repair-count');if(repairs)repairs.textContent='2';
+    const health=dialog.querySelector('.boss-health i');if(health)health.style.width='33.333%';
     say('3 筆訂單都用對杯子！現在算算今日營收。',true);
   } else {
     say('三筆訂單全部正確，助手準備好上班了！',true);
@@ -272,9 +348,14 @@ async function action(button) {
   const a=button.dataset.action;
   if(running && a!=='close')return;
   const index=Number(button.dataset.index);
+  if(a==='travel'){await travel(index);return;}
+  if(a==='move'){moveHero(Number(button.dataset.dx),Number(button.dataset.dy));return;}
+  if(a==='talk'){talk();return;}
+  if(a==='accept-task'){startTask(index);return;}
+  if(a==='knowledge'){openModal('knowledge');return;}
   if(a==='enter') {
     if(location.hash!=='#shop')location.hash='shop';
-    else if(!state.started)openModal('intro');
+    else if(!rpg.introduced)openModal('intro');
   } else if(a==='close')closeModal();
   else if(a==='home'){
     closeModal();
@@ -349,14 +430,21 @@ document.addEventListener('click',event=>{
     else startTask(i);
   } else if(button.dataset.action)void action(button);
 });
+document.addEventListener('keydown',event=>{
+  if(dialog.open||!event.target.closest('.adventure-map'))return;
+  const directions={arrowup:[0,-1],w:[0,-1],arrowdown:[0,1],s:[0,1],arrowleft:[-1,0],a:[-1,0],arrowright:[1,0],d:[1,0]};
+  const direction=directions[event.key.toLowerCase()];
+  if(direction){event.preventDefault();moveHero(...direction);}
+  else if(event.key==='Enter'&&!event.target.closest('button')){event.preventDefault();talk();}
+});
 dialog.addEventListener('submit',event=>{
   if(event.target.id!=='intro-form')return;
   event.preventDefault();
   const data=new FormData(event.target);
   const name=String(data.get('name')||'').trim();
-  if(!name || Array.from(name).length>12) {say('請輸入 1～12 個字的店名，才放得進小店招牌喔。');return;}
-  state.name=name;state.avatar=data.get('avatar')==='peach'?'peach':'mint';state.started=true;
-  persist();render();closeModal();toast('歡迎新店長！點選訂單區，開始第一個任務。');
+  if(!name || Array.from(name).length>12) {say('請輸入 1～12 個字的冒險者名字。');return;}
+  state.name=name;state.avatar=data.get('avatar')==='peach'?'peach':'mint';state.started=true;rpg.introduced=true;
+  persist();render();closeModal();toast('冒險開始！點選資料檔案館，沿路找到索引學者。');
 });
 dialog.addEventListener('cancel',event=>{event.preventDefault();closeModal();});
 dialog.addEventListener('keydown',event=>{
@@ -398,14 +486,15 @@ dialog.addEventListener('pointerup',event=>{
 });
 dialog.addEventListener('pointercancel',()=>{drag?.ghost?.remove();drag=null;});
 window.addEventListener('hashchange',()=>{
+  stopWalk();
   if(dialog.open)closeModal();
   render();
-  if(location.hash==='#shop'&&!state.started)openModal('intro');
+  if(location.hash==='#shop'&&!rpg.introduced)openModal('intro');
   else document.querySelector(location.hash==='#shop'?'.back-link':'.hero-cta')?.focus();
 });
 window.addEventListener('pagehide',()=>{cancelRun();clearTimeout(toastTimer);});
 render();
 if(loaded.warning)toast(loaded.warning);
-if(location.hash==='#shop'&&!state.started)openModal('intro');
+if(location.hash==='#shop'&&!rpg.introduced)openModal('intro');
 
 if(state.finalComplete)void processCampusReward(state,persist);

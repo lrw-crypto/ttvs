@@ -35,6 +35,15 @@ function observe(page) {
   page.on('response', response => { if (response.status() >= 400) errors.push(`${response.status()} ${response.url()}`); });
 }
 const storageKey = 'ttvs.moe-shop.game.v1';
+const rpgKey='ttvs.data-quest.rpg.v1';
+async function openQuest(page,index){
+  await page.locator(`.journey-list [data-index="${index}"]`).click();
+  await act(page,'accept-task').waitFor();
+  await text(dialog(page).locator('.course-banner'),[ /資料庫/, /程式設計/, /試算表/ ][index]);
+  const expected=[{x:4,y:10},{x:16,y:10},{x:4,y:5}][index];
+  assert.deepEqual(await page.evaluate(key=>JSON.parse(localStorage.getItem(key)).hero,rpgKey),expected);
+  await act(page,'accept-task').click();
+}
 const stored = page => page.evaluate(key => JSON.parse(localStorage.getItem(key)), storageKey);
 const dialog = page => page.locator('#game-dialog[open]');
 const act = (page, name, extra = '') => dialog(page).locator(`[data-action="${name}"]${extra}`);
@@ -70,11 +79,27 @@ async function enter(page, touch) {
   assert.equal((await stored(page)).name, '測試萌萌店');
   assert.equal((await stored(page)).avatar, 'peach');
   await page.waitForFunction(()=>document.activeElement?.matches('.back-link'));
-  await page.locator('.bottom-actions [data-action="decor"]').click();
+  await page.locator('.bottom-actions [data-action="results"]').click();
+  await act(page,'decor').click();
   await act(page,'decor-apply','[data-group="sign"]').click();
   await text(dialog(page).locator('#feedback'),/星星不足/);
   await close(page);
-  passed(`${touch?'觸控':'桌面'}：首頁入口、店名與角色選擇、星星不足不扣款`);
+  passed(`${touch?'觸控':'桌面'}：首頁入口、冒險者名字與角色選擇、星星不足不扣款`);
+}
+async function exploreMap(page) {
+  await page.locator('.boss-quest').click();
+  await text(dialog(page),/目前封印尚未解除/);
+  assert.equal(await act(page,'festival').count(),0);await close(page);
+  await page.locator('.map-quest.quest-1').click();
+  assert.equal(await act(page,'accept-task').count(),0);await close(page);
+  const map=page.locator('.scene-region .adventure-map');await map.focus();
+  await page.keyboard.press('ArrowUp');await page.keyboard.press('ArrowRight');
+  const position=()=>page.evaluate(key=>JSON.parse(localStorage.getItem(key)).hero,rpgKey);
+  assert.deepEqual(await position(),{x:11,y:12});
+  await page.keyboard.press('ArrowUp');assert.deepEqual(await position(),{x:11,y:12});
+  await page.reload();assert.deepEqual(await position(),{x:11,y:12});
+  assert.equal(await page.locator('#game-dialog[open]').count(),0);
+  passed('RPG 鍵盤移動、道路碰撞、位置存檔、NPC 與核心封印均有實際作用');
 }
 async function keyboardModal(page) {
   const trigger=page.locator('.bottom-actions [data-action="tasks"]');
@@ -95,11 +120,11 @@ async function keyboardModal(page) {
 }
 async function cancelTrial(page) {
   const before=await stored(page);
-  await page.locator('.journey-list [data-index="1"]').click();
+  await openQuest(page,1);
   await act(page,'run-rules').click();
   await page.keyboard.press('Escape');
   await page.locator('#game-dialog').waitFor({state:'hidden'});
-  await page.locator('.journey-list [data-index="1"]').click();
+  await openQuest(page,1);
   await page.waitForTimeout(900);
   assert.equal(await dialog(page).locator('.test-result,.run-status').count(),0);
   assert.equal(await act(page,'run-rules').isEnabled(),true);
@@ -109,7 +134,7 @@ async function cancelTrial(page) {
   passed('試跑期間 Escape 取消會清理計時器，重新開啟不受延遲結果影響');
 }
 async function taskOne(page, touch, removeSecond = false) {
-  await page.locator('.journey-list [data-index="0"]').click();
+  await openQuest(page,0);
   const actions=await page.evaluate(()=>({body:getComputedStyle(document.body).touchAction,html:getComputedStyle(document.documentElement).touchAction,app:getComputedStyle(document.querySelector('#app')).touchAction,modal:getComputedStyle(document.querySelector('dialog')).touchAction,card:getComputedStyle(document.querySelector('[data-pick]')).touchAction}));
   for(const scope of ['body','html','app','modal'])assert.notEqual(actions[scope],'none',`${scope} must not globally disable gestures`);
   assert.equal(actions.card,'none');
@@ -133,14 +158,14 @@ async function taskOne(page, touch, removeSecond = false) {
   assert.equal(await dialog(page).locator('.order-row').count(), 3);
   assert.equal(await dialog(page).locator('.order-id', { hasText: 'A101' }).count(), 1);
   await act(page, 'dedup-check').click();
-  await text(dialog(page).locator('#dialog-title'), /原來這就是資料整理/);
+  await text(dialog(page).locator('#dialog-title'), /秩序符文到手/);
   await close(page);
   assert.equal((await stored(page)).stars, 2);
-  assert.equal(await page.locator('.scene-region .shop-hotspot.is-unlocked').count(), 1);
-  passed(`${touch?'觸控拖曳＋點選':'滑鼠拖曳＋點選'}：欄位提示、A103 保留、任一 A101 可移除、設備升級`);
+  assert.equal(await page.locator('.scene-region .map-quest.cleared:not(.boss-quest)').count(), 1);
+  passed(`${touch?'觸控拖曳＋點選':'滑鼠拖曳＋點選'}：欄位提示、A103 保留、任一 A101 可移除、秩序符文取得`);
 }
 async function taskTwo(page, touch) {
-  await page.locator('.journey-list [data-index="1"]').click();
+  await openQuest(page,1);
   assert.equal(await dialog(page).locator('.rule-slot', { hasText:'尚未設定' }).count(), 2);
   for (const branch of ['cold', 'hot']) {
     await tapOrClick(dialog(page).locator('[data-pick="cold"]'),touch);
@@ -159,11 +184,11 @@ async function taskTwo(page, touch) {
   await act(page,'rules-complete').click();
   await close(page);
   assert.equal((await stored(page)).stars,4);
-  assert.equal(await page.locator('.scene-region .shop-hotspot.is-unlocked').count(),2);
-  passed(`${touch?'觸控':'桌面'}：錯誤分支真實得到 2/3，修正後 3/3 才解鎖助手`);
+  assert.equal(await page.locator('.scene-region .map-quest.cleared:not(.boss-quest)').count(),2);
+  passed(`${touch?'觸控':'桌面'}：錯誤分支真實得到 2/3，修正後 3/3 才取得邏輯符文`);
 }
 async function taskThree(page, touch) {
-  await page.locator('.journey-list [data-index="2"]').click();
+  await openQuest(page,2);
   for(const key of ['2','0','1']) await tapOrClick(dialog(page).locator(`[data-pick="${key}"]`),touch);
   await act(page,'formula-apply').click();
   await text(dialog(page).locator('#feedback'),/單價 × 銷量/);
@@ -182,12 +207,17 @@ async function taskThree(page, touch) {
   await act(page,'answer','[data-product="milk"]').click();
   await close(page);
   assert.equal((await stored(page)).stars,6);
-  assert.equal(await page.locator('.scene-region .shop-hotspot.is-unlocked').count(),3);
-  await text(page.locator('.scene-region .shop-art'),/人氣餅乾/);
-  passed(`${touch?'觸控':'桌面'}：公式驗證、240/200/140/580、雙圖表決策與展示櫃`);
+  assert.equal(await page.locator('.scene-region .map-quest.cleared:not(.boss-quest)').count(),3);
+  await page.locator('.bottom-actions [data-action="knowledge"]').click();
+  assert.equal(await dialog(page).locator('.course-card.learned').count(),3);
+  await text(dialog(page),/資料庫入門[\s\S]*程式設計[\s\S]*試算表應用/);
+  await close(page);
+  passed(`${touch?'觸控':'桌面'}：公式驗證、240/200/140/580、雙圖表決策與課程圖鑑`);
 }
 async function festival(page, touch, bridge = false) {
   await page.locator('.festival-entry').click();
+  await act(page,'festival').waitFor();
+  await act(page,'festival').click();
   await act(page,'festival-dedup').click();
   await text(dialog(page).locator('#feedback'),/重複 F201/);
   await act(page,'festival-remove','[data-index="2"]').click();
@@ -196,20 +226,21 @@ async function festival(page, touch, bridge = false) {
   await act(page,'festival-calculate').waitFor();
   await text(dialog(page).locator('.run-status'),/正確 3 \/ 3/);
   await act(page,'festival-calculate').click();
-  await text(dialog(page).locator('#dialog-title'),/智慧小店開幕成功/);
+  await text(dialog(page).locator('#dialog-title'),/資料迷霧解除/);
   const numbers=await dialog(page).locator('.final-numbers strong').allTextContents();
   assert.deepEqual(numbers,['3','4','165']);
   await text(dialog(page).locator('.receipt'),/80 元[\s\S]*50 元[\s\S]*35 元[\s\S]*165 元/);
-  await text(dialog(page).locator('.badge-unlocked'),/資處小店長/);
+  await text(dialog(page).locator('.badge-unlocked'),/資處資料勇者/);
   assert.equal((await stored(page)).finalComplete,true);
   if(!bridge)assert.equal((await stored(page)).websiteRewardHandled,false);
   await page.screenshot({path:resolve(root,`test-results/${touch?'mobile':'desktop'}-completion.png`),fullPage:true});
   await close(page);
-  await text(page.locator('.level-badge'),/Lv.4/);
-  passed(`${touch?'觸控':'桌面'}：校慶去重、實際出餐、3 筆／4 杯／165 元、徽章`);
+  await text(page.locator('.level-badge'),/Lv.5/);
+  passed(`${touch?'觸控':'桌面'}：校慶救援去重、實際規則執行、3 筆／4 杯／165 元、徽章`);
 }
 async function decorAndReplay(page) {
-  await page.locator('.bottom-actions [data-action="decor"]').click();
+  await page.locator('.bottom-actions [data-action="results"]').click();
+  await act(page,'decor').click();
   await act(page,'decor-preview','[data-group="sign"][data-value="pink"]').click();
   assert.equal((await stored(page)).decor.sign,'mint');
   for (const group of ['sign','chair','plant']) await act(page,'decor-apply',`[data-group="${group}"]`).click();
@@ -223,7 +254,7 @@ async function decorAndReplay(page) {
   await page.reload();
   assert.equal((await stored(page)).decor.chair,'bear');
   assert.equal((await stored(page)).finalComplete,true);
-  await page.locator('.journey-list [data-index="0"]').click();
+  await openQuest(page,0);
   for(const key of ['id','customer','product','quantity']) {
     await dialog(page).locator(`[data-pick="${key}"]`).click();
     await dialog(page).locator(`[data-drop="${key}"]`).click();
@@ -231,7 +262,7 @@ async function decorAndReplay(page) {
   await act(page,'fields-check').click();
   await act(page,'remove-order','[data-index="2"]').click();
   await act(page,'dedup-check').click();
-  await text(dialog(page).locator('.upgrade-reward'),/首次獎勵已領取/);
+  await text(dialog(page).locator('.upgrade-reward'),/不重複發放/);
   assert.equal((await stored(page)).stars,0);
   await close(page);
   await page.screenshot({path:resolve(root,'test-results/desktop-shop.png'),fullPage:true});
@@ -245,13 +276,13 @@ try {
   assert.equal(await directPage.locator('.shop-layout').count(),1);
   assert.equal(await directPage.locator('.game-cover').count(),0);
   await directPage.keyboard.press('Escape');
-  assert.equal(await directPage.locator('.scene-region .shop-hotspot').count(),3);
-  passed('直接開啟 /ttvs/#shop 即顯示店面，新玩家進入店長設定，不會停在封面');
+  assert.equal(await directPage.locator('.scene-region .map-quest').count(),4);
+  passed('直接開啟 /ttvs/#shop 即顯示 RPG 地圖，新玩家進入角色設定');
   const desktop=await browser.newContext({viewport:{width:1440,height:1000},reducedMotion:'reduce'});
   const page=await desktop.newPage();observe(page);
   await page.goto(`${base}/ttvs/`);
   await page.screenshot({path:resolve(root,'test-results/desktop-home.png'),fullPage:true});
-  await enter(page,false);await keyboardModal(page);await taskOne(page,false);await taskTwo(page,false);await cancelTrial(page);await taskThree(page,false);await festival(page,false);await decorAndReplay(page);
+  await enter(page,false);await exploreMap(page);await keyboardModal(page);await taskOne(page,false);await taskTwo(page,false);await cancelTrial(page);await taskThree(page,false);await festival(page,false);await decorAndReplay(page);
   for (const width of [390,768,1024,1440]) {
     await page.setViewportSize({width,height:width===1024?768:1000});
     assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),`Page overflow at ${width}`);
@@ -262,7 +293,7 @@ try {
   passed('390 / 768 / 1024 / 1440 模擬尺寸無頁面與成果視窗水平溢出');
   await page.goto(`${base}/115/`);
   await page.locator('[data-action="enter"]').click();
-  await page.locator('.scene-region .shop-art').waitFor();
+  await page.locator('.scene-region .adventure-art').waitFor();
   await page.locator('.back-link').click();
   await page.locator('[data-action="enter"]').waitFor();
   passed('/ttvs/ 與 /115/ 子路徑載入、首頁返回與重新進入');
@@ -289,6 +320,7 @@ try {
   await text(blockedPage.locator('.store-identity h1'),/<b>安全店名/);
   assert.equal(await blockedPage.locator('.store-identity h1 b').count(),0);
   await blockedPage.locator('.journey-list [data-index="0"]').click();
+  await act(blockedPage,'accept-task').click();
   await dialog(blockedPage).locator('[data-pick="id"]').click();
   await dialog(blockedPage).locator('[data-drop="id"]').click();
   await text(dialog(blockedPage).locator('[data-drop="id"]'),/A101/);
@@ -298,6 +330,7 @@ try {
   const bridgePage=await bridgeContext.newPage();observe(bridgePage);
   const ready={...(await stored(page)),finalComplete:false,websiteRewardHandled:false};
   await bridgePage.addInitScript(({key,ready})=>{
+    localStorage.setItem('ttvs.data-quest.rpg.v1',JSON.stringify({version:1,introduced:true,hero:{x:10,y:13}}));
     if(!localStorage.getItem(key))localStorage.setItem(key,JSON.stringify(ready));
     window.TTVSCampusBridge={departmentId:'host-data-processing',async awardDepartment(payload){
       if(payload.departmentId!=='host-data-processing')throw Error('Wrong department');
@@ -314,7 +347,7 @@ try {
   passed('可選校園介面只有真實回執才記錄獎勵、重整重玩不重複呼叫');
   assert.deepEqual(errors,[],`Unexpected browser/asset errors:\n${errors.join('\n')}`);
   passed('無新增未處理 console/page error 或素材 404');
-  console.log(`\n${checks} 組瀏覽器驗證通過。模擬尺寸與觸控不等於實機 iPad 測試。`);
+  console.log(`\n${checks} 組 RPG 瀏覽器驗證通過。模擬尺寸與觸控不等於實機 iPad 測試。`);
 } catch(error) {
   if(lastPage){await lastPage.screenshot({path:resolve(root,'test-results/failure.png'),fullPage:true}); console.log(await lastPage.locator('#game-dialog').innerText());}
   throw error;

@@ -1,14 +1,15 @@
 {
   "name": "ttvs-moe-shop",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
   "type": "module",
-  "description": "資處萌萌店長：可離線運算的資訊技能經營小遊戲",
+  "description": "資處萌萌冒險：認識資料整理、程式設計與試算表應用的課程探索 RPG",
   "scripts": {
     "dev": "python3 -m http.server 5173 --bind 0.0.0.0",
     "build": "node scripts/build.mjs",
-    "test": "node tests/game.test.js",
-    "test:browser": "node tests/browser.mjs"
+    "test": "node tests/game.test.js && node tests/rpg.test.js",
+    "test:browser": "node tests/browser.mjs",
+    "deploy": "npm run build && node scripts/publish-pages.mjs"
   },
   "devDependencies": {
     "playwright": "1.56.1"
