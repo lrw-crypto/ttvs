@@ -1,0 +1,130 @@
+/* The game frame and furniture use original warm wood, garden green and storybook outlines. */
+@layer theme {
+  :root { --green: #4e8249; --ink: #57432f; --muted: #807157; --line: #e0d0a8; --cream: #fff6df; color: #57432f; background: #eaf0d5; }
+  body { background: radial-gradient(ellipse at 50% 20%,#fff7df 0%,#ecf0d4 65%,#d7e3bc 100%); }
+  .moe-app { background-image: radial-gradient(#a3b68120 1px,transparent 1px); background-size: 15px 15px; }
+  .moe-app .topbar { height: 78px; max-width: 1140px; padding-inline: 24px; border-bottom: 0; }
+  .brand { color: #537445; text-shadow: 0 1px #fff9e7; font-size: 19px; }
+  .brand small { color: #8f9a6c; }
+  .brand-icon { background: linear-gradient(#fff5d6,#f1dbab); border: 2px solid #c19a5f; border-radius: 15px; color: #62814b; box-shadow: 0 3px 0 #ad895543,inset 0 1px #fffdf2; }
+  .header-note { color: #9c8f6c; }
+  .edition { border: 1px solid #c6ce9e; background: #f4f4dd; color: #8b9568; font-size: 10px; }
+  .moe-app .site-footer { max-width: 1040px; border-top: 0; color: #8d9275; padding: 20px 24px; }
+  .loading-shop { padding: 60px 20px; text-align: center; }
+
+  .game-cover { max-width: 820px; margin: 5px auto 25px; padding: 0 20px 25px; text-align: center; }
+  .cover-title { position: relative; z-index: 1; }
+  .cover-ribbon { display: inline-block; background: #769661; color: #fff6d8; border: 2px solid #5b7b49; border-radius: 7px 7px 16px 16px; padding: 8px 26px; font-size: 11px; font-weight: 700; letter-spacing: 2px; box-shadow: 0 3px 0 #5167441a; }
+  .cover-title h1 { color: #6a914e; font-size: clamp(36px,5vw,54px); line-height: 1.3; font-weight: 1000; letter-spacing: 5px; margin: 15px 0 8px; -webkit-text-stroke: 5px #fffbec; paint-order: stroke fill; filter: drop-shadow(0 3px 0 #a9844e66); }
+  .cover-title h1 span { color: #c0934e; }
+  .cover-title>p { font-size: 14px; letter-spacing: 1px; color: #887452; margin-bottom: 0; }
+  .cover-world { position: relative; padding-top: 0; background: none; margin: 15px auto 0; max-width: 680px; border: 5px solid #b39563; outline: 2px solid #fff7de; border-radius: 27px; box-shadow: 0 8px 0 #b5986b38,0 12px 35px #71834720; overflow: hidden; }
+  .home-scene .shop-scene { transform: none; margin: 0; width: 100%; max-width: none; }
+  .cover-sticker { position: absolute; bottom: 11%; right: 6%; font-size: 13px; line-height: 1.8; color: #fff9df; background: #6c945d; border: 3px solid #fff5d5; border-radius: 18px; padding: 9px 15px; transform: rotate(-7deg); box-shadow: 2px 4px 0 #685b3b30; }
+  .cover-start { position: relative; margin: -18px auto 0; z-index: 2; max-width: 470px; }
+  .moe-app .hero-cta { min-width: 330px; padding: 16px 26px !important; font-size: 17px !important; border-radius: 17px; border: 3px solid #fdf2cf; outline: 2px solid #51733e; background: linear-gradient(#86ad67,#608e48); box-shadow: 0 6px 0 #496b3e,0 9px 12px #485a3220,inset 0 2px 0 #b7cf92; color: #fffbdf; text-shadow: 0 2px #466333; margin: 0 0 18px; }
+  .hero-cta:hover { background: linear-gradient(#93b777,#709e57); }
+  .cover-start>p { font-size: 10px; color: #91916e; letter-spacing: .5px; margin: 2px 0 8px; }
+  .cover-howto { max-width: 420px; margin: 0 auto; font-size: 12px; color: #9a8d6e; }
+  .cover-howto summary { min-height: 44px; padding: 14px; cursor: pointer; }
+  .cover-howto p { font-size: 12px; line-height: 1.9; background: #fff7e2; border: 1px solid #dbc9a0; border-radius: 12px; padding: 15px; text-align: left; }
+  .direct-entry { display: inline-flex; align-items: center; min-height: 44px; font-size: 11px; color: #678352 !important; text-decoration: underline !important; text-underline-offset: 4px; }
+
+  .shop-layout { max-width: 1060px; margin: 0 auto; padding: 4px 24px 25px; }
+  .shop-heading { position: relative; gap: 13px; flex-wrap: wrap; padding: 12px 16px 15px; margin-bottom: 16px; background: #fff4d7; border: 2px solid #c7ab77; border-radius: 18px; box-shadow: 0 4px 0 #c7ab7733,inset 0 1px 0 #fffdf2; }
+  .back-link { min-height: 44px; color: #9b855f !important; font-size: 11px; margin-right: 5px; }
+  .manager-token { width: 54px; height: 57px; display: block; overflow: hidden; flex-shrink: 0; background: #dce7c2; border: 2px solid #a3b37b; border-radius: 15px; padding-top: 6px; }
+  .manager-token svg { width: 100%; height: 100%; }
+  .store-identity { min-width: 0; }
+  .store-identity>.eyebrow { color: #b09a6f; font-size: 8px; letter-spacing: 1.2px; }
+  .store-identity h1 { font-size: 23px; color: #6b5939; margin-top: 6px; gap: 10px; }
+  .level-badge { background: #dfebc3; color: #71824c; border: 1px solid #becb91; border-radius: 6px; padding: 4px 7px; font-size: 9px; }
+  .stats { gap: 10px; margin-left: auto; }
+  .star-pill,.progress-pill { background: #f6e7bf; border: 1px solid #d5ba7e; border-radius: 14px; padding: 9px 12px; max-width: none; white-space: nowrap; }
+  .star-pill>.icon { color: #b98b35; fill: #f2cc68; }
+  .stats strong { font-size: 20px; color: #8c763f; }
+  .stats small { color: #a18c5c; font-size: 9px; }
+  .star-pill>small { width: auto; }
+  .game-grid { position: relative; display: block; overflow: hidden; border: 4px solid #b59664; border-radius: 25px; background: #e1e9be; box-shadow: 0 6px 0 #9b80532b,0 15px 35px #59734412; }
+  .shop-stage { display: block; padding: 0; background: none; }
+  .stage-top { position: absolute; z-index: 2; top: 13px; left: 14px; right: 14px; font-size: 10px; color: #79845a; align-items: center; padding: 0; pointer-events: none; }
+  .stage-top>span:first-child { background: #fffae2e8; color: #6c8352; padding: 7px 10px; border: 1px solid #b2be84; border-radius: 20px; }
+  .stage-top>span:last-child { background: #fffae2d9; padding: 6px 10px; border-radius: 20px; }
+  .live-dot { background: #81a44d; box-shadow: 0 0 0 2px #dce7b9; }
+  .scene-region { max-width: 900px; margin: 0 auto; }
+  .shop-scene { aspect-ratio: 1000/800; max-width: none; margin: 0; }
+  .shop-art { border-radius: 19px; overflow: hidden; }
+  .stage-message { position: relative; background: #fff5d9; color: #92784b; border: none; border-top: 2px solid #c4b07d; border-radius: 0; margin: 0; padding: 14px 20px; font-size: 12px; }
+  .stage-message>.icon { color: #8da466; }
+  .journey { position: absolute; left: 10px; top: 20%; width: 77px; z-index: 3; background: transparent; border: none; padding: 0; }
+  .journey h2,.journey>.muted,.journey-note,.journey>.section-kicker { display: none; }
+  .journey-list { display: flex; flex-direction: column; gap: 13px; margin: 0 0 13px; }
+  .journey-list li+li { margin: 0; }
+  .journey-list li+li::before { display: none; }
+  .journey-list button { background: #fff6d6; border: 2px solid #ad925b; color: #827145; box-shadow: 0 3px 0 #816c4533,inset 0 2px 0 #fffdf0; border-radius: 16px; flex-direction: column; text-align: center; gap: 5px; padding: 8px 3px; }
+  .journey-list .current button { background: #fff1b9; border-color: #bd9341; box-shadow: 0 3px 0 #ad83433b,inset 0 2px 0 #fffbd9; }
+  .journey-list button:disabled { opacity: .7; }
+  .step-number,.current .step-number { width: 35px; min-width: 35px; height: 35px; border-radius: 10px; color: #fff6d2; background: #83a45c; border: 1px solid #6b8949; }
+  .done .step-number { background: #bbcd87; color: #688746; }
+  .step-number>.icon { width: 22px; height: 22px; }
+  .journey-list strong { font-size: 10px; line-height: 1.4; max-width: 67px; }
+  .journey-list small,.tiny-done { display: none; }
+  .festival-entry { padding: 10px 3px; border: 2px solid #c9a366; border-radius: 16px; color: #a88747; background: #fae7b6; gap: 5px; flex-direction: column; box-shadow: 0 3px 0 #9a774c30; }
+  .festival-entry>.icon { width: 28px; height: 28px; }
+  .festival-entry>span:last-child,.festival-entry small { display: none; }
+  .festival-entry strong { font-size: 10px; line-height: 1.4; }
+  .festival-entry.completed { background: #e1eac3; border-color: #a4b77c; }
+  .shop-hotspot { background: #fff7dcf2; border: 2px solid #b59a66; border-radius: 14px; color: #7d7048; padding: 8px 11px; box-shadow: 0 3px 0 #735b3d29; font-size: 11px; }
+  .shop-hotspot>span:last-child { color: #c49647; font-size: 17px; font-weight: 900; }
+  .station-symbol { width: 16px; height: 16px; color: #b99a55; flex-shrink: 0; }
+  .shop-hotspot-dot { background: #e3b467; box-shadow: 0 0 0 3px #f8ebc8; }
+  .shop-hotspot.is-unlocked .shop-hotspot-dot { background: #7a9e4e; box-shadow: 0 0 0 3px #dce7ba; }
+  .shop-hotspot--orders { left: 24%; top: 37%; }
+  .shop-hotspot--rules { left: 52%; top: 58%; }
+  .shop-hotspot--analysis { left: 75%; top: 32%; }
+  .bottom-actions { max-width: 650px; gap: 16px; margin: 23px auto 8px; }
+  .nav-button { border: 2px solid #b2985e; border-radius: 16px; padding: 14px 20px; color: #8c6f36; background: linear-gradient(#fff1bd,#f4d58d); box-shadow: 0 5px 0 #b38f4d,inset 0 2px 0 #fff9dd; text-shadow: 0 1px #fff8db; }
+  .nav-button:nth-child(2) { border-color: #c59b8b; color: #a47360; background: linear-gradient(#fbe1ce,#edc3af); box-shadow: 0 5px 0 #ba8b75,inset 0 2px 0 #fff0e3; }
+  .nav-button:nth-child(3) { border-color: #9cab72; color: #6f864d; background: linear-gradient(#e1edbf,#bcce8c); box-shadow: 0 5px 0 #91a465,inset 0 2px 0 #f0f7d8; }
+  .nav-button>.icon { width: 29px; height: 29px; }
+  .nav-button span { font-size: 15px; }
+  .nav-button small { color: #a28f60; font-size: 9px; }
+  .nav-button:nth-child(2) small { color: #b68e7a; }
+  .nav-button:nth-child(3) small { color: #91a16b; }
+
+  .moe-dialog { color: #66543b; background: #fff7e3; border: 3px solid #bfa06b; border-radius: 22px; box-shadow: 0 20px 80px #3e4e3670,inset 0 0 0 3px #fffdf1; }
+  .moe-dialog::backdrop { background: #344b3973; backdrop-filter: blur(5px); }
+  .dialog-header { padding-bottom: 17px; border-bottom: 1px dashed #d9c6a0; }
+  .dialog-header h2 { color: #75603e; }
+  .dialog-header .eyebrow { color: #a5946a; }
+  .close-modal { color: #a09069; background: #f3e8c9; border-color: #dac69c; }
+  .moe-dialog .primary { background: linear-gradient(#7a9e5f,#628849); border: 2px solid #5e7d45; box-shadow: inset 0 2px #b3c78d,0 3px 0 #4c6a3730; color: #fff8df; text-shadow: 0 1px #4e6c37; }
+  .moe-dialog .primary:hover { background: linear-gradient(#88aa6c,#729753); }
+  .moe-dialog .secondary { color: #927c4f; border-color: #d4bd8c; background: #fbefcd; }
+  .moe-dialog .secondary:hover { background: #f6e5b9; }
+  .dialog-lead { color: #8b7e5d; }
+  .decor-preview { background: #e3ebca; border-color: #bfc998; }
+  .decor-preview .shop-scene { max-width: 420px; margin: 0 auto; }
+  .decor-preview .shop-art { border-radius: 0; }
+  .preview-label { background: #fff6decc; border-radius: 7px; padding: 5px 8px; color: #9a8e65; }
+  .feedback { background: #fce9cf; color: #a5734b; }
+  .feedback.good { background: #e9efcf; color: #748b4c; }
+  .moe-toast { background: #fff6d8; border: 2px solid #c2ad77; color: #817044; }
+  @media(min-width:1000px) { .cover-world { max-width: 610px; }.game-cover { max-width: 760px; }.scene-region { max-width: 860px; }.game-grid { background:#deE8be; }.journey { top: 21%; left: 16px; }.shop-layout { max-width: 1010px; } }
+  @media(max-width:820px) { .shop-heading { gap: 10px; }.back-link { width: auto; }.manager-token { width: 45px; height: 49px; }.store-identity h1 { font-size: 21px; }.store-identity { flex: 1; }.stats { gap: 7px; }.star-pill,.progress-pill { padding: 7px 10px; }.stats strong { font-size: 17px; }.stats small { font-size: 8px; }.shop-stage { padding: 0; }.journey-list { grid-template-columns: none; }.journey-list button { height: auto; }.stage-message { margin: 0; }.cover-world { margin-top: 20px; }.game-cover { max-width: 660px; } }
+  @media(max-width:600px) { .moe-app .topbar { height: 68px; padding-inline: 17px; }.brand { font-size: 16px; }.brand-icon { width: 40px; height: 40px; border-radius: 12px; }.edition { font-size: 8px; width: 72px; padding: 6px 8px; white-space: normal; }.header-note { display: none; }.shop-layout { padding: 3px 11px 20px; }.shop-heading { gap: 8px; border-radius: 14px; padding: 10px; margin-bottom: 12px; }.back-link { order: 0; font-size: 10px; min-height: 44px; margin: 0; }.back-link>.icon { width: 14px; }.manager-token { width: 42px; height: 47px; }.store-identity { flex-basis: calc(100% - 140px); }.store-identity h1 { font-size: 18px; gap: 5px; margin-top: 3px; line-height: 1.6; }.store-identity>.eyebrow { font-size: 6px; letter-spacing: .6px; }.level-badge { font-size: 8px; padding: 3px 5px; }.stats { width: 100%; justify-content: center; gap: 12px; margin-top: 3px; }.stats strong { font-size: 16px; }.stats small { font-size: 10px; }.star-pill,.progress-pill { padding: 6px 13px; gap: 6px; border-radius: 20px; }.star-pill>.icon { width: 18px; }.game-grid { border-width: 3px; border-radius: 19px; }.stage-top { top: 7px; left: 7px; right: 7px; font-size: 8px; }.stage-top>span:first-child { padding: 5px 8px; }.stage-top>span:last-child { font-size: 7px; padding: 5px 7px; }.journey { left: 5px; width: 56px; top: 18%; }.journey-list { gap: 7px; margin-bottom: 7px; }.journey-list button { gap: 3px; padding: 6px 2px; border-radius: 12px; }.step-number,.current .step-number { min-width: 24px; width: 24px; height: 24px; border-radius: 7px; }.step-number>.icon { width: 17px; height: 17px; }.journey-list strong { font-size: 8px; line-height: 1.35; max-width: 50px; }.festival-entry { border-radius: 12px; padding: 6px 2px; gap: 3px; }.festival-entry>.icon { width: 20px; height: 20px; }.festival-entry strong { font-size: 8px; }.shop-hotspot { min-height: 44px; padding: 5px 7px; font-size: 9px; border-radius: 12px; gap: 4px; }.shop-hotspot>span:last-child { font-size: 13px; }.shop-hotspot-dot { width: 5px; height: 5px; }.shop-hotspot--orders { left: 23%; top: 35%; }.shop-hotspot--rules { left: 50%; top: 58%; }.shop-hotspot--analysis { left: 72%; top: 31%; }.stage-message { font-size: 10px; padding: 11px; gap: 7px; }.stage-message>.icon { width: 16px; height: 16px; }.bottom-actions { gap: 10px; margin: 17px 4px 7px; }.nav-button { padding: 10px 6px; border-radius: 13px; gap: 7px; }.nav-button>.icon { width: 24px; height: 24px; }.nav-button span { font-size: 12px; }.nav-button small { font-size: 7px; margin-top: 4px; }.moe-app .site-footer { padding: 15px 10px max(18px,env(safe-area-inset-bottom)); font-size: 8px; }.game-cover { margin-top: 2px; padding-inline: 13px; }.cover-title h1 { font-size: 36px; letter-spacing: 3px; margin-top: 13px; }.cover-title>p { font-size: 11px; letter-spacing: .5px; }.cover-ribbon { font-size: 9px; letter-spacing: 1px; padding: 7px 18px; }.cover-world { margin-top: 17px; border-width: 3px; border-radius: 19px; }.cover-sticker { font-size: 9px; padding: 6px 10px; border-radius: 12px; border-width: 2px; }.cover-start { margin-top: -10px; max-width: 92%; }.moe-app .hero-cta { min-width: 0; width: 100%; padding: 13px 10px !important; font-size: 14px !important; border-radius: 14px; }.cover-start>p { font-size: 9px; }.cover-howto summary { padding-block: 14px; }.decor-preview .shop-scene { margin: 0; }.decor-preview { margin-top: 13px; } }
+  @media(max-width:600px) {
+    .scene-region .shop-scene { aspect-ratio: 720/800; overflow: hidden; }
+    .scene-region .shop-art { width: 138.889%; height: 100%; max-width: none; margin-left: -19.444%; }
+    .shop-hotspot { width: 44px; height: 44px; padding: 0; border-radius: 14px; justify-content: center; }
+    .shop-hotspot .shop-hotspot-label,.shop-hotspot>span:last-child { display: none; }
+    .station-symbol { width: 24px; height: 24px; color: #8e975d; }
+    .shop-hotspot--orders { left: 24%; top: 33%; }
+    .shop-hotspot--rules { left: 53%; top: 54%; }
+    .shop-hotspot--analysis { left: 83%; top: 30%; }
+    .journey { top: 15%; }
+    .stage-top>span:last-child { display: none; }
+    .moe-app .site-footer { padding-top: 12px; }
+  }
+  @media(prefers-reduced-motion:reduce) { .game-cover *, .shop-layout * { animation: none !important; transition: none !important; } }
+}
