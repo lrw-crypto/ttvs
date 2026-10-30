@@ -7,7 +7,7 @@
 - 首頁：https://lrw-crypto.github.io/ttvs/
 - 直接進入冒險地圖：https://lrw-crypto.github.io/ttvs/#shop
 
-`#shop` 保留舊入口相容性，現在會進入 RPG 地圖。正式上線版本以 GitHub 原生 `pages build and deployment` 及後續 `Check game and published site` 的公開內容驗證成功為準。
+`#shop` 保留舊入口相容性，現在會進入 RPG 地圖。正式上線版本以 GitHub 原生 `pages build and deployment` 及後續 `Verify published RPG` 的公開內容驗證成功為準。
 
 ## 如何玩
 
@@ -62,10 +62,10 @@ SITE_DIR=dist npm run test:browser
 1. 執行適當測試、建置、必要的瀏覽器流程。
 2. 檢查遠端，將通過驗證的程式提交並正常推送到 `main`，不強制覆蓋別人的提交。
 3. 執行 `npm run deploy`。腳本檢查工作區乾淨、本機與遠端 main 一致，以暫存目錄更新既有 `gh-pages` 的靜態檔案並正常推送，不使用 force-push。
-4. 等待 GitHub 原生 `pages build and deployment` 成功。完成後會觸發 `Check game and published site`：對公開網址取回 HTML、JavaScript、樣式及圖示，與這次發布的 SHA-256 指紋逐一比較。
+4. 等待 GitHub 原生 `pages build and deployment` 成功。同次靜態分支推送也會觸發 `Verify published RPG`，等待 Pages 完成後驗證：對公開網址取回 HTML、JavaScript、樣式及圖示，與這次發布的 SHA-256 指紋逐一比較。
 5. 兩個工作都成功後，才宣告該版已上線。推送成功不能替代網站驗證成功。
 
-`npm run build` 只產生 `dist/`：包含網站入口、runtime 原始碼／樣式、原創素材、`.nojekyll` 與 `release.json`。不含 Git metadata、開發套件、測試、認證或存檔。`release.json` 記錄來源提交與公開檔案指紋。全站使用相對網址，支援 `/ttvs/`、`/115/` 子路徑。
+`npm run build` 只產生 `dist/`：包含網站入口、runtime 原始碼／樣式、原創素材、`.nojekyll` 與 `release.json`。另含隱藏的 `.github/` 公開驗證工作流程工具；不含 Git metadata、開發套件、測試、認證或存檔。`release.json` 記錄來源提交與公開檔案指紋。建置會為入口資源及 ES module 加上來源版本號，避免更新後仍載入舊版程式。全站使用相對網址，支援 `/ttvs/`、`/115/` 子路徑。
 
 發布雲端開發環境只會保存開發快照，和把網站部署到 GitHub Pages 是不同操作。
 

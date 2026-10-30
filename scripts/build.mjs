@@ -18,9 +18,22 @@ for (const name of ['index.html', 'src', 'assets']) {
 }
 await writeFile(resolve(output, '.nojekyll'), '');
 const sourceCommit=execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim();
+const version=sourceCommit.slice(0,12);
+const deployedHtml=(await readFile(resolve(output,'index.html'),'utf8')).replace(/((?:src|href)=")(\.\/[^"?]+\.(?:js|css|svg))(")/g,`$1$2?v=${version}$3`);
+await writeFile(resolve(output,'index.html'),deployedHtml);
+for(const entry of await readdir(resolve(output,'src'))){
+  if(!entry.endsWith('.js'))continue;
+  const path=resolve(output,'src',entry);
+  const code=(await readFile(path,'utf8')).replace(/\bfrom\s+(['"])(\.\/[^'"]+\.js)\1/g,(_,quote,path)=>`from ${quote}${path}?v=${version}${quote}`);
+  await writeFile(path,code);
+}
+await mkdir(resolve(output,'.github/workflows'),{recursive:true});
+await cp(resolve(root,'.github/workflows/verify-deployment.yml'),resolve(output,'.github/workflows/verify-deployment.yml'));
+await cp(resolve(root,'scripts/verify-live.mjs'),resolve(output,'.github/verify-live.mjs'));
 const files={};
 async function fingerprint(directory,prefix='') {
   for(const entry of await readdir(directory,{withFileTypes:true})){
+    if(entry.name.startsWith('.'))continue;
     const name=prefix+entry.name;
     if(entry.isDirectory())await fingerprint(resolve(directory,entry.name),name+'/');
     else if(!entry.name.startsWith('.'))files[name]=createHash('sha256').update(await readFile(resolve(directory,entry.name))).digest('hex');

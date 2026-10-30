@@ -1,19 +1,15 @@
-name: Check game and published site
+name: Check RPG source
 
 on:
   push:
     branches: [main]
   workflow_dispatch:
-  workflow_run:
-    workflows: ['pages build and deployment']
-    types: [completed]
 
 permissions:
   contents: read
 
 jobs:
   validate:
-    if: github.event_name != 'workflow_run'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -26,22 +22,3 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run build
-
-  verify-live:
-    if: github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-          path: tooling
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.workflow_run.head_sha }}
-          persist-credentials: false
-          path: published
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '24'
-      - name: Verify public homepage, JavaScript, styles and assets
-        run: node tooling/scripts/verify-live.mjs https://lrw-crypto.github.io/ttvs/ published/release.json
