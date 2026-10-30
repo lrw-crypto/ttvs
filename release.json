@@ -1,18 +1,18 @@
 {
   "schema": 1,
-  "sourceCommit": "94b2e5d1c91146013bddc21858602ee7024492c0",
+  "sourceCommit": "73526ac9588646341a3504347fd04bb5b05a4970",
   "files": {
     "assets/shop-icon.svg": "86c1b0563d84c9f9645e167b243018c4b5a626afd829b1fa1a8e22afc64afb4c",
-    "index.html": "c3d28705626700decebfe0f43f8ef9596a8ff48ac4fa27b512ea46d2e18077f5",
-    "src/adventure-world.js": "a0a1b1803928a43ede39996570264e9ef18db50d61dd211dc86f6197300d7ddb",
-    "src/app.js": "1cefb0499bdeae70887d30969fc467a9f8346253ef32a82075da047d7064b09b",
+    "index.html": "b945c326da1a574f3cb41424091eb0eb7866a046fd3c754e842a42d79d4e5245",
+    "src/adventure-world.js": "5e5eabcfe1ef9aa26a72ba5e2a93ac7b9d76c900b16effa07895902ff218709f",
+    "src/app.js": "254bea923c31901b94216f12a7f2ff1a8e808e065cfa15bc37ddaf2bb79adcc2",
     "src/game-theme.css": "5d2b8c9f52e414964dafbb940b9d9e07748e929801d82a2d14d592c97839ab64",
     "src/game.js": "722a9448f206850ae4755ea4452964384fd36ca72ae2a2c8d96ddae8ea83ad14",
     "src/integration.js": "dbb42bb4d527d0357ba9d8bd896b6ed080ca9598bb98e5a50cf12b7b2ee9da00",
     "src/rpg.css": "86cf37df5f0001315c532ff1cd4c1cf5e0a1d4b3a29b194b0b9086ee1ff9da48",
     "src/rpg.js": "43738ee8394575f72bc17ce412b4b51cb74c4652ec31f0ac27b8afcf7416a63e",
     "src/scene.css": "987e01ed29c499c8872216f993c2a88f80760c362ab3a867d2acd7f5663da4d9",
-    "src/scene.js": "1ddc39bc4d3f16705727421ef64a3c4c1c92f4e6f1bdd7dd16165f3134de3643",
+    "src/scene.js": "32b0c0e29754b38ae4e428002aed71fb1423862cf4cdd6984303a584672a2878",
     "src/shop-world.js": "cf2a1732b5a10aedad8f5cb9895493a768c34dcc1e85c7358ea213f57c16a801",
     "src/style.css": "1ce725a533a52b20b66c1a2d27c27923768fbe6c43621808f135cf1a1c417030"
   }
