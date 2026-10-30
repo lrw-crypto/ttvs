@@ -9,7 +9,7 @@ export async function processCampusReward(state, persist) {
     const result = await bridge.awardDepartment({
       departmentId: bridge.departmentId,
       completionId: 'ttvs.moe-shop.festival.v1',
-      badge: '資處小店長',
+      badge: '資處資料勇者',
     });
     if (result?.handled === true) {
       state.websiteRewardHandled = true;

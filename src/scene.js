@@ -108,4 +108,3 @@ export function renderScene(state, { preview = null, interactive = true } = {}) 
     <button type="button" class="shop-hotspot shop-hotspot--analysis${done[2]?' is-unlocked':''}" data-station="analysis" aria-label="${done[2]?'查看銷售分析看板':'開始銷售分析師任務'}">${stationSymbol('analysis')}<span class="shop-hotspot-label">${done[2]?'分析看板':'小店分析'}</span><span aria-hidden="true">＋</span></button>` : ''}
   </div>`;
 }
-
