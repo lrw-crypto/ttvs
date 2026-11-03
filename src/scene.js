@@ -1,4 +1,4 @@
-import { project, block, floor, outdoors, walls, wallDetails, foliage, frontGarden, cafeTable, coffeeMachine, breadDisplay } from './shop-world.js?v=b3b786db8cb4';
+import { project, block, floor, outdoors, walls, wallDetails, foliage, frontGarden, cafeTable, coffeeMachine, breadDisplay } from './shop-world.js?v=a56c91f8f5a5';
 
 // Original SVG artwork. The scene uses fixed positions so characters never cross furniture.
 const escapeText = (value) => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
