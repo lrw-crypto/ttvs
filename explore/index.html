@@ -514,9 +514,9 @@ const N={ gw:[-46,0],av:[-38,0],av2:[-30,0],
   pipe:[-27.2,-9.4],gg:[-18.2,-9.4],mech:[-9.2,-9.4],eng:[0,-8.4],gj:[8.5,-8.4],admin:[29.5,-11.4],
   data:[-27,10.9],acct:[-18,10.9],biz:[-9,10.9],night:[0,10.4],life:[8.5,10.4],
   gN:[-40,-6],sport:[-40,-12.4],gS:[-40,6],track:[-40,8.6],d1:[40,-18],
-  e1:[40,20],gateS:[41,31],m921:[28.3,9.8] };
+  e1:[40,20],gateS:[35,31],m921:[28.3,9.8] };
 // nodes outside the campus, given in world coordinates
-const WNODE={g0:[-37.5,41.5],i0:[-40.5,48.5],c1:[-38.5,54.2],hilife:[-28,60.4],f1:[-38.2,30],fish:[-40.5,23.4],ng:[0,-50],ug:[0,-56],pv:[13,-63.6]};
+const WNODE={g0:[-37.5,35],i0:[-40.5,48.5],c1:[-38.5,54.2],hilife:[-28,60.4],f1:[-38.2,28],fish:[-44.6,24],ng:[0,-50],ug:[0,-56],pv:[13,-63.6]};
 for(const k in WNODE) N[k]=W2T(...WNODE[k]);
 const EDGES=[['gw','av'],['av','av2'],['av2','NW'],['av2','SW'],['av','gN'],['gN','sport'],['av','gS'],['gS','track'],
   ['NW','nA'],['nA','n1'],['n1','nB'],['nB','nL'],['nL','nE'],['nE','n3'],['n3','nF'],['nF','n5'],['n5','n6'],
@@ -536,9 +536,9 @@ function nearestNode(wx,wz){ const [x,z]=W2T(wx,wz); let best=null,bd=1e9; for(c
 const GW=100, GPX=2048; const P=v=>(v+GW/2)/GW*GPX;
 const groundTex=tex((g)=>{
   const u=GPX/GW; const R=(x0,z0,x1,z1,c)=>{ g.fillStyle=c; g.fillRect(P(x0),P(z0),(x1-x0)*u,(z1-z0)*u); };
-  g.fillStyle='#79cf4e'; g.fillRect(0,0,GPX,GPX); R(36,34,46,36,'#e9a493');
+  g.fillStyle='#79cf4e'; g.fillRect(0,0,GPX,GPX); R(30,34,40,36,'#e9a493');
   // campus brick paving
-  const C0=PLAN.campus; R(C0.x0,C0.z0,C0.x1,C0.z1,'#f3dccd'); R(36,27,46,34,'#e9a493');
+  const C0=PLAN.campus; R(C0.x0,C0.z0,C0.x1,C0.z1,'#f3dccd'); R(30,27,40,34,'#e9a493');
   g.strokeStyle='rgba(150,110,100,.10)'; g.lineWidth=1; for(let x=C0.x0;x<C0.x1;x+=1){ g.beginPath(); g.moveTo(P(x),P(C0.z0)); g.lineTo(P(x),P(C0.z1)); g.stroke(); } for(let z=C0.z0;z<C0.z1;z+=1){ g.beginPath(); g.moveTo(P(C0.x0),P(z)); g.lineTo(P(C0.x1),P(z)); g.stroke(); }
   // perimeter grass beds
   R(C0.x0,C0.z0,C0.x1,C0.z0+2.2,'#6fca4a'); R(C0.x0,C0.z1-2.2,36.5,C0.z1,'#6fca4a'); R(C0.x0,C0.z0,C0.x0+2.2,-3,'#6fca4a'); R(C0.x0,3,C0.x0+2.2,C0.z1,'#6fca4a'); R(C0.x1-2.2,C0.z0,C0.x1,C0.z1,'#6fca4a');
@@ -747,19 +747,19 @@ function buildCampus(){
 
   // campus wall, 正校門 (SE corner) and the west gate on 中央大道
   const wall=(x1,z1,x2,z2)=>{ const L=Math.hypot(x2-x1,z2-z1); const ry=-Math.atan2(z2-z1,x2-x1); const m=box(CAMP,L,.7,.35,'#c9867a',(x1+x2)/2,0,(z1+z2)/2); m.rotation.y=ry; const c=box(CAMP,L,.1,.45,TRIM,(x1+x2)/2,.7,(z1+z2)/2); c.rotation.y=ry; };
-  wall(-48,34,37.5,34); wall(44.5,34,48,34); wall(-48,-34,48,-34); wall(-48,-34,-48,-3); wall(-48,3,-48,34); wall(48,-34,48,34);
+  wall(-48,34,31.5,34); wall(38.5,34,48,34); wall(-48,-34,48,-34); wall(-48,-34,-48,-3); wall(-48,3,-48,34); wall(48,-34,48,34);
   const gateP=(x,z,ry)=>{ const g=new THREE.Group(); g.position.set(x,0,z); g.rotation.y=ry; CAMP.add(g); for(const s of [-1,1]){ box(g,.9,2.2,.9,'#d6d2cb',s*3.9,0,0); box(g,1.05,.15,1.05,TRIM,s*3.9,2.2,0); } return g; };
   gateP(-48.2,0,Math.PI/2);
-  { const g=gateP(41,34.2,0); // 正校門: silver retractable gate folded to the east, traffic cones
+  { const g=gateP(35,34.2,0); // 正校門: silver retractable gate folded to the east, traffic cones
     for(let i=0;i<9;i++){ const x=3.6-i*.32; box(g,.06,1.15,.06,'#cfd5da',x,.1,0); if(i<8){ const d=box(g,.05,1.4,.05,'#b8c0c6',x-.16,0,0); d.rotation.z=(i%2?1:-1)*.6; d.position.y=.68; } }
     box(g,2.9,.1,.1,'#b8c0c6',2.3,1.22,0); box(g,2.9,.12,.12,'#9aa3aa',2.3,.03,0); box(g,.5,1.45,.5,'#9aa3aa',3.75,0,0);
     for(const [x,z] of [[-2.6,1.4],[-1.9,1.9],[2.2,1.5],[2.9,1.9],[-3,-1.5],[3,-1.6]]){ box(g,.42,.05,.42,'#ff7a1a',x,0,z); cone(g,.18,.58,'#ff7a1a',x,.05,z,12); cyl(g,.125,.15,.1,'#ffffff',x,.25,z,12); } }
-  { const g=new THREE.Group(); g.position.set(34.6,0,31.4); CAMP.add(g); // 警衛室
+  { const g=new THREE.Group(); g.position.set(41.8,0,31.3); CAMP.add(g); // 警衛室 (inside, right of the gate)
     box(g,4.2,2.2,3,'#f8f6f1'); box(g,4.24,.55,3.04,'#cfc8be'); box(g,3.2,.9,.06,M('#9fd8ee',{roughness:.15,metalness:.2}),0,.95,1.52); box(g,.06,.9,2,M('#9fd8ee',{roughness:.15,metalness:.2}),2.12,.95,0);
     box(g,5.6,.16,4.4,'#ffffff',0,2.2,0); hip(g,5.4,4.2,1.1,'#4e5459',2.36); plane(g,1.7,.42,signTex('警衛室','#1fa2e6','#ffffff',320,96,56),0,1.78,1.53); }
   { const g=new THREE.Group(); g.position.set(29.4,0,31.6); CAMP.add(g); // ATM kiosk with green roof
     box(g,2,2.1,2,'#fbfbf8'); box(g,1.1,1.1,.06,'#3a4a55',0,.7,1.02); hip(g,2.5,2.5,.8,'#3faa5a',2.15); plane(g,1.1,.32,signTex('ATM','#3faa5a','#ffffff',256,80,54),0,1.78,1.03); }
-  { const g=new THREE.Group(); g.position.set(28.5,0,34.75); CAMP.add(g); // 校名牆: wooden slats, gold characters, honour banner, flower bed
+  { const g=new THREE.Group(); g.position.set(43.6,0,34.75); g.scale.x=.86; CAMP.add(g); // 校名牆 (outside, right of the gate): wooden slats, gold characters, honour banner, flower bed
     box(g,10.4,.5,.85,'#8a9a84',0,0,.25); for(let i=0;i<28;i++) sph(g,.16,['#ff4f6d','#ffd23f','#ff9f1c','#ffffff','#ff7ab8'][i%5],-5+i*.37,.56,.12+(i%2)*.3,8); 
     box(g,10,.95,.22,'#f0ead8',0,.5,-.15);
     plane(g,9.9,.9,tex((c,w,h)=>{ const gr=c.createLinearGradient(0,0,w,0); gr.addColorStop(0,'#ffe066'); gr.addColorStop(.5,'#b9e769'); gr.addColorStop(1,'#7fd3ff'); c.fillStyle=gr; c.fillRect(0,0,w,h); c.fillStyle='#d6303f'; c.font=`bold 44px ${FONT}`; c.fillText('賀',14,52); c.fillText('榜',14,104); for(let k=0;k<70;k++){ c.fillStyle=pick(['#2a3a8a','#c0392b','#1d6b3a','#7a3aa0']); c.fillRect(74+(k%35)*26,14+Math.floor(k/35)*54,16,42); } },1024,120),0,.975,-.03);
@@ -769,8 +769,8 @@ function buildCampus(){
       c.shadowBlur=0; c.shadowOffsetY=0; c.font='bold 21px sans-serif'; c.fillStyle='#fff1c8'; c.fillText('National Tsao-Tun Commercial and Industrial Vocational Senior High School',w/2+60,h-24); },1024,192),0,2.375,-.16); }
   // festive flags lining the entrance drive + balloons at the gate
   { const cols=['#ff4f6d','#ffd23f','#1fa2e6','#3cbf55','#9b6bdf','#ff9f1c']; let i=0;
-    for(const x of [38.3]) for(let z=22;z<=30;z+=2.7){ cyl(CAMP,.04,.05,3.2,'#ececec',x,0,z,6); const f=box(CAMP,.03,.6,.95,cols[i%6],x,2.45,z+.5); const ph=i++; anim.push(t=>{ f.rotation.y=Math.sin(t*2.4+ph)*.35; }); } }
-  { const b=new THREE.Group(); b.position.set(45.6,0,34.9); CAMP.add(b); ['#ff4f6d','#ffd23f','#1fa2e6','#3cbf55','#ff9f1c','#9b6bdf'].forEach((c,i)=>{ const s2=sph(b,.34,c,Math.cos(i)*.5,3.1+(i%3)*.38,Math.sin(i)*.35,12); s2.scale.y=1.15; }); add(new THREE.CylinderGeometry(.012,.012,3,3),'#ffffff',b,0,1.5,0,false); anim.push(t=>{ b.rotation.y=Math.sin(t*.8)*.3; b.position.y=Math.sin(t*1.3)*.08; }); }
+    for(const x of [32]) for(let z=22;z<=30;z+=2.7){ cyl(CAMP,.04,.05,3.2,'#ececec',x,0,z,6); const f=box(CAMP,.03,.6,.95,cols[i%6],x,2.45,z+.5); const ph=i++; anim.push(t=>{ f.rotation.y=Math.sin(t*2.4+ph)*.35; }); } }
+  { const b=new THREE.Group(); b.position.set(29.6,0,34.9); CAMP.add(b); ['#ff4f6d','#ffd23f','#1fa2e6','#3cbf55','#ff9f1c','#9b6bdf'].forEach((c,i)=>{ const s2=sph(b,.34,c,Math.cos(i)*.5,3.1+(i%3)*.38,Math.sin(i)*.35,12); s2.scale.y=1.15; }); add(new THREE.CylinderGeometry(.012,.012,3,3),'#ffffff',b,0,1.5,0,false); anim.push(t=>{ b.rotation.y=Math.sin(t*.8)*.3; b.position.y=Math.sin(t*1.3)*.08; }); }
 
   // trees: rows along 中央草坪 and 中央大道, perimeter, beside the dorms
   for(let x=1;x<=34;x+=8.2){ lampPost(CAMP,x,-6.2); lampPost(CAMP,x,6.2); }
@@ -807,7 +807,7 @@ const EXPZ=x=>-56-0.1*x;
 function nearRoad(x,z,pad){ for(const r of Object.values(ROADS)){ for(let i=1;i<r.pts.length;i++){ const [ax,az]=r.pts[i-1],[bx,bz]=r.pts[i]; const dx=bx-ax,dz=bz-az; let t=((x-ax)*dx+(z-az)*dz)/(dx*dx+dz*dz); t=Math.max(0,Math.min(1,t)); if(Math.hypot(x-ax-dx*t,z-az-dz*t)<r.w/2+pad) return true; } } return Math.abs(z-EXPZ(x))<7.5; }
 function freeLot(x,z,pad=3.4){ if(nearRoad(x,z,pad)) return false; if(Math.abs(x)<37.5&&Math.abs(z)<51.5) return false; if(x>-25&&x<28&&z>-78&&z<-59) return false; for(const S of Object.values(SHOPS)) if(Math.hypot(x-S.x,z-S.z)<7.5) return false; return true; }
 const WG=250, WPX=2048, WU=WPX/WG, WP=v=>(v+WG/2)*WU;
-const SHOPS={ hilife:{x:-28,z:64.5,ry:Math.PI}, fish:{x:-40.5,z:19,ry:0}, tea:{x:-40.5,z:11.5,ry:0}, burger:{x:-24,z:52,ry:0} };
+const SHOPS={ hilife:{x:-28,z:64.5,ry:Math.PI}, fish:{x:-41.8,z:19,ry:-Math.PI/2}, tea:{x:-42,z:11.5,ry:-Math.PI/2}, burger:{x:-24,z:52,ry:0} };
 
 function buildWorld(){
   // ---------- painted world ground ----------
@@ -827,7 +827,7 @@ function buildWorld(){
     // shade strip under the expressway
     g.save(); g.translate(WP(0),WP(EXPZ(0))); g.rotate(-Math.atan(.1)); g.fillStyle='rgba(60,70,60,.22)'; g.fillRect(-WG/2*WU,-5.5*WU,WG*WU,11*WU); g.restore();
     // forecourts at the 正校門 corner and in front of the shops
-    R(-41,36,-34,47,'#e9a493'); R(-44,16,-37,27,'#e7d8c8'); R(-32,60,-24,69,'#e7d8c8'); R(-28,49,-20,55.5,'#e7d8c8');
+    R(-41,30,-34,48.5,'#e9a493'); R(-46,13,-38,25,'#e7d8c8'); R(-32,60,-24,69,'#e7d8c8'); R(-28,49,-20,55.5,'#e7d8c8');
     // roads
     const draw=(r,col,w)=>{ g.strokeStyle=col; g.lineWidth=w*WU; g.lineCap='round'; g.lineJoin='round'; g.beginPath(); r.pts.forEach((p,i)=>i?g.lineTo(WP(p[0]),WP(p[1])):g.moveTo(WP(p[0]),WP(p[1]))); g.stroke(); };
     for(const k of ['xin','tou3','lane','fencao','hwy14']){ const r=ROADS[k]; draw(r,'#f2cdbf',r.w+6); }
@@ -900,13 +900,13 @@ function buildWorld(){
   { const g=new THREE.Group(); g.position.set(53,0,38.5); scene.add(g); block(g,20,3,4,{wall:'#fff3c4',win:'#6f93b3'}); hip(g,20.8,4.8,1.2,'#e05a4a',3*FH+.05); }
   TAGS.push({name:'新庄國小',x:53,y:7,z:36,world:true,land:true});
   // ---------- trees along the roads ----------
-  for(let t=.03;t<1;t+=.035){ const q=roadAt(ROADS.hwy14,t,6.2); if(q.x>-36&&q.z>-48&&q.z<48) continue; if(Math.abs(q.z-EXPZ(q.x))<7) continue; if(Math.hypot(q.x+40.5,q.z-17)<7||Math.hypot(q.x+40,q.z-44)<6) continue; tree(scene,q.x,q.z,.9,C.tree2); }
+  for(let t=.03;t<1;t+=.035){ const q=roadAt(ROADS.hwy14,t,6.2); if(q.x>-36&&q.z>-48&&q.z<48) continue; if(Math.abs(q.z-EXPZ(q.x))<7) continue; if(Object.values(SHOPS).some(S=>Math.hypot(q.x-S.x,q.z-S.z)<7)||(q.x>-42&&q.z>30&&q.z<49)) continue; tree(scene,q.x,q.z,.9,C.tree2); }
   for(let i=0;i<60;i++){ const x=rnd(38,72), z=rnd(-115,115); if(x>38&&x<68&&z>18&&z<46) continue; if(!freeLot(x,z,1.5)) continue; tree(scene,x,z,rnd(.9,1.3),pick([C.tree,C.tree2,'#ff9ec4'])); }
   for(let i=0;i<14;i++){ const m=cone(scene,rnd(40,75),rnd(18,40),pick(['#7fb0d8','#8fbde0','#7aa9cf']),rnd(-260,260),-1,rnd(-250,-190),7); m.castShadow=false; m.receiveShadow=false; }
   for(let i=0;i<10;i++){ const g=new THREE.Group(); for(let j=0;j<4;j++){ const s=sph(g,rnd(1.6,2.8),M('#ffffff',{roughness:1}),j*2-3,rnd(-.3,.5),rnd(-.6,.6),12); s.castShadow=false; } g.position.set(rnd(-130,130),rnd(34,46),rnd(-130,60)); g.userData.v=rnd(.6,1.4); scene.add(g); anim.push((t,dt)=>{ g.position.x+=g.userData.v*dt; if(g.position.x>150) g.position.x=-150; }); }
   buildShiDao();
   // street furniture: hedges with flowers around the campus, lamp posts along sidewalks
-  hedgeRun(-35,-47,-35,-3); hedgeRun(-35,3,-35,22.5); hedgeRun(-35,34.5,-35,37); hedgeRun(-35,45,-35,48.8); hedgeRun(-35,48.9,-29,48.9); hedgeRun(-19,48.9,35,48.9); hedgeRun(34.9,-48.9,34.9,48.9); hedgeRun(-34,-48.9,-3.5,-48.9); hedgeRun(3.5,-48.9,34,-48.9);
+  hedgeRun(-35,-47,-35,-3); hedgeRun(-35,3,-35,30.6); hedgeRun(-35,48.9,-29,48.9); hedgeRun(-19,48.9,35,48.9); hedgeRun(34.9,-48.9,34.9,48.9); hedgeRun(-34,-48.9,-3.5,-48.9); hedgeRun(3.5,-48.9,34,-48.9);
   for(let t=.04;t<1;t+=.045){ for(const off of [6.6,-6.6]){ const q=roadAt(ROADS.hwy14,t,off); if(!nearRoad(q.x,q.z,.5)&&!(q.x>-38&&Math.abs(q.z)<52)&&!Object.values(SHOPS).some(S=>Math.hypot(q.x-S.x,q.z-S.z)<6.5)) lampPost(scene,q.x,q.z); } }
   for(let t=.03;t<1;t+=.06){ for(const off of [4.2,-4.2]){ const q=roadAt(ROADS.fencao,t,off); if((q.z>50.5||off>0)&&!Object.values(SHOPS).some(S=>Math.hypot(q.x-S.x,q.z-S.z)<6.5)) lampPost(scene,q.x,q.z); } }
   // bus stop by the gate corner
@@ -937,11 +937,11 @@ function buildShiDao(){
     for(let i=0;i<12;i++){ const x=rnd(-5.4,5.4), z=rnd(-1.5,1.5); const pad=cyl(g,.38,.38,.03,'#5cbf4a',x,1.0,z,12); pad.castShadow=false; if(i%3===0) sph(g,.11,'#ff8fc0',x+.1,1.1,z,8); }
     for(let i=0;i<8;i++) sph(g,rnd(.25,.45),'#a9a49b',rnd(-6,6),1,pick([-1,1])*rnd(1.8,2.2),8).scale.y=.6;
     const tr=tree(g,4.5,0,.9,'#ff9ec4'); tr.position.y=.6; }
-  { const g=new THREE.Group(); g.position.set(-26.8,0,45.5); scene.add(g); // 校長宿舍: small house with a dark tiled hip roof
+  { const g=new THREE.Group(); g.position.set(-25,0,45.5); scene.add(g); // 校長宿舍: small house with a dark tiled hip roof
     box(g,5.6,2.2,3,'#fbf7f0'); box(g,5.64,.5,3.04,'#cfc8be'); for(const x of [-1.7,1.7]) box(g,1.1,.8,.05,'#5f86a8',x,.95,-1.52); box(g,.9,1.55,.05,'#8a5a34',0,0,-1.52);
     box(g,6.8,.12,4.2,'#ffffff',0,2.2,0); hip(g,6.6,4.0,1.3,'#3a3f46',2.32);
     for(const x of [-2.6,-1.3,1.3,2.6]) sph(g,.38,'#4fb04a',x,.3,-2.1,8); flowerBed(g,0,-2.4,6,.5);
-    TAGS.push({name:'校長宿舍',x:-26.8,y:4.8,z:45.5,world:true}); }
+  }
   TAGS.push({name:'師道',x:-12,y:4.6,z:47.2,world:true,land:true});
 }
 
@@ -979,7 +979,7 @@ function buildShops(){
     { const m=new THREE.Group(); m.position.set(2.7,0,1.9); b.add(m); for(const s of [-1,1]){ const leg=box(m,.06,1.1,.06,'#8a6a45',s*.35,0,0); leg.rotation.x=s*.15; } box(m,.9,.7,.05,'#2f3a2f',0,.7,.06); plane(m,.8,.6,signTex('今日推薦','#2f3a2f','#ffffff',256,180,44),0,1.05,.09); }
     // giant bowl on the roof
     { const bw=new THREE.Group(); bw.position.set(0,5.2,-.9); b.add(bw); const bowl=add(geo('bowl',()=>new THREE.SphereGeometry(1.2,24,12,0,Math.PI*2,Math.PI/2,Math.PI/2)),M('#ffffff',{side:THREE.DoubleSide}),bw,0,.95,0); add(geo('bowlRim',()=>new THREE.TorusGeometry(1.2,.07,8,32)),'#1fa2e6',bw,0,.95,0).rotation.x=Math.PI/2; cyl(bw,1.12,1.12,.05,'#c9853f',0,.82,0,24); for(let i=0;i<5;i++){ const f=box(bw,.38,.24,.3,'#f6c27a',Math.cos(i*1.3)*.55,.9,Math.sin(i*1.3)*.5); f.rotation.y=i; } sph(bw,.12,'#3cbf55',.2,1.0,-.3,8); for(const x of [.3,.45]){ const c=add(new THREE.CylinderGeometry(.03,.03,1.8,6),'#c48a4a',bw,x,1.5,.2); c.rotation.z=.5; } anim.push(t=>{ bw.position.y=5.2+Math.sin(t*1.6)*.08; }); }
-    reg('fish',g,0,new THREE.Vector3(0,0,1)); }
+    reg('fish',g,0,new THREE.Vector3(-1,0,0)); }
   // 沙軒茶坊 & 弘爺漢堡: small neighbours with big cute signs
   const mini=(S,name,col,top)=>{ const g=new THREE.Group(); g.position.set(S.x,0,S.z); g.rotation.y=S.ry; scene.add(g); diorama(g,6,5.4); const b=new THREE.Group(); b.position.y=.3; g.add(b); box(b,4.6,2.6,3.4,'#fffaf0',0,0,-.5); box(b,4.8,.3,3.6,col,0,2.6,-.5); box(b,3.4,1.5,.05,M('#bfe9f5',{roughness:.1}),0,.2,1.23); plane(b,3.8,.6,signTex(name,col,'#ffffff',640,100,62),0,2.15,1.26); top(b); TAGS.push({name,x:S.x,y:5.6,z:S.z,world:true}); };
   mini(SHOPS.tea,'沙軒茶坊','#2fb8a8',b=>{ const c=new THREE.Group(); c.position.set(0,3.3,-.5); b.add(c); cyl(c,.45,.36,.9,'#ffffff',0,0,0,16); cyl(c,.4,.4,.06,'#c48a4a',0,.86,0,16); add(new THREE.CylinderGeometry(.04,.04,.9,6),'#ff4f6d',c,.15,1.1,0); for(let i=0;i<4;i++) sph(c,.07,'#3a2a22',Math.cos(i*1.6)*.2,.1+i*.15,Math.sin(i*1.6)*.2,6); });
