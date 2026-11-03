@@ -6,6 +6,7 @@
 
 - 首頁：https://lrw-crypto.github.io/ttvs/
 - 直接進入冒險地圖：https://lrw-crypto.github.io/ttvs/#shop
+- 草商探索趣（草屯商工 3D 校園探索地圖）：https://lrw-crypto.github.io/ttvs/explore/
 
 `#shop` 保留舊入口相容性，現在會進入 RPG 地圖。正式上線版本以 GitHub 原生 `pages build and deployment` 及後續 `Verify published RPG` 的公開內容驗證成功為準。
 
@@ -78,6 +79,7 @@ SITE_DIR=dist npm run test:browser
 - `src/scene.js` / `src/shop-world.js` / 既有樣式：保留第一版原創場景模組，其中助手仍用於程式試跑；不載入外部美術。
 - `scripts/`：靜態建置、正常分支發布、公開檔案指紋驗證。
 - `tests/`：邏輯與實際瀏覽器驗收。
+- `explore/`：草商探索趣，單一 `index.html`（Three.js 0.160 由 jsDelivr 載入），建置時只複製 `explore/index.html` 到 `dist/explore/`。`explore/api/feed.js` 與 `explore/bot/island_feed.py` 是 Discord TA Bot 即時動態的 Vercel 版選用元件，GitHub Pages 上讀不到 `api/feed` 時會自動播放示範廣播。說明見 `explore/README.md`。
 
 ## 校園網站整合
 

@@ -16,6 +16,9 @@ await mkdir(output, { recursive: true });
 for (const name of ['index.html', 'src', 'assets']) {
   await cp(resolve(root, name), resolve(output, name), { recursive: true });
 }
+// 草商探索趣（3D 校園探索地圖）：單一 HTML，公開在 /explore/
+await mkdir(resolve(output, 'explore'), { recursive: true });
+await cp(resolve(root, 'explore/index.html'), resolve(output, 'explore/index.html'));
 await writeFile(resolve(output, '.nojekyll'), '');
 const sourceCommit=execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim();
 const version=sourceCommit.slice(0,12);
@@ -41,4 +44,4 @@ async function fingerprint(directory,prefix='') {
 }
 await fingerprint(output);
 await writeFile(resolve(output,'release.json'),JSON.stringify({schema:1,sourceCommit,files},null,2)+'\n');
-console.log('RPG 靜態網站已產生於 dist/。首頁：/；冒險地圖：/#shop。建置本身不會上傳。');
+console.log('RPG 靜態網站已產生於 dist/。首頁：/；冒險地圖：/#shop；草商探索趣：/explore/。建置本身不會上傳。');
