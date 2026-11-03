@@ -19,6 +19,8 @@ for (const name of ['index.html', 'src', 'assets']) {
 // 草商探索趣（3D 校園探索地圖）：單一 HTML，公開在 /explore/
 await mkdir(resolve(output, 'explore'), { recursive: true });
 await cp(resolve(root, 'explore/index.html'), resolve(output, 'explore/index.html'));
+// 科別簡介用的照片（取自各科簡報，已壓縮）
+await cp(resolve(root, 'explore/media'), resolve(output, 'explore/media'), { recursive: true });
 await writeFile(resolve(output, '.nojekyll'), '');
 const sourceCommit=execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim();
 const version=sourceCommit.slice(0,12);
