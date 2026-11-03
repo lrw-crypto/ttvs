@@ -1,8 +1,8 @@
-import { robotSvg } from './scene.js?v=73526ac95886';
-import { renderAdventure, adventurerSvg as avatarSvg } from './adventure-world.js?v=73526ac95886';
-import { QUESTS, BOSS, CAMP, TILE, canEnter, experience, heroLevel, findPath, passable, nearestNPC, loadRpg, saveRpg } from './rpg.js?v=73526ac95886';
-import { loadState, saveState, completeTask, purchaseDecoration, removeDuplicate, runRules, summarizeOrders, finishFestival, SALES, TRAINING_ORDERS, SERVICE_ORDERS, FESTIVAL_ORDERS } from './game.js?v=73526ac95886';
-import { processCampusReward } from './integration.js?v=73526ac95886';
+import { robotSvg } from './scene.js?v=f5be6a185bcc';
+import { renderAdventure, adventurerSvg as avatarSvg } from './adventure-world.js?v=f5be6a185bcc';
+import { QUESTS, BOSS, CAMP, TILE, canEnter, experience, heroLevel, findPath, passable, nearestNPC, loadRpg, saveRpg } from './rpg.js?v=f5be6a185bcc';
+import { loadState, saveState, completeTask, purchaseDecoration, removeDuplicate, runRules, summarizeOrders, finishFestival, SALES, TRAINING_ORDERS, SERVICE_ORDERS, FESTIVAL_ORDERS } from './game.js?v=f5be6a185bcc';
+import { processCampusReward } from './integration.js?v=f5be6a185bcc';
 
 const loaded = loadState();
 const state = loaded.state;

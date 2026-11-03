@@ -1,4 +1,4 @@
-import {QUESTS,ROAD,TILE,BOSS,passable} from './rpg.js?v=73526ac95886';
+import {QUESTS,ROAD,TILE,BOSS,passable} from './rpg.js?v=f5be6a185bcc';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const center=p=>({x:p.x*TILE+20,y:p.y*TILE+20});
 export function adventurerSvg(avatar='mint') {
