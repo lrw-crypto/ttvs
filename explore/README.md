@@ -68,3 +68,14 @@
 ## 本機預覽
 
 `npx serve .` 即可看示範模式；要測 API 用 `vercel dev`。
+
+## 小禮物名額（前 50 名）
+
+集滿 13 枚金幣後，網頁會向 `api/redeem` 領一個號碼（`api/redeem.js`，Vercel + Upstash，與 TA Bot 動態共用同一組 Upstash 環境變數）。前 50 位拿到「第 N 位」兌換憑證；名額用完後，點客服中鼎文會顯示「謝謝探索！獎品已經兌換完畢」。
+
+- 同一個瀏覽器重開或重整都拿回同一個號碼；同一 IP 一天最多領 3 個號碼。
+- 名額數用環境變數 `PRIZE_LIMIT` 調整（預設 50）。
+- 網頁和 API 不在同一個網域時（例如 GitHub Pages），把 API 網址填進 `index.html` 開頭的 `<meta name="caotun-redeem-api" content="https://你的專案.vercel.app/api/redeem">`。
+- 名單：Upstash Console 執行 `HGETALL caotun:prize:names`（號碼 → 名字）。重開一輪：`DEL caotun:prize:count caotun:prize:claims caotun:prize:names`。
+- 連不到 API 時，憑證照常顯示，並註明名額以中鼎文現場確認為準。
+- 進度存在學生自己的瀏覽器，懂技術的人可以偽造金幣或用不同瀏覽器多領；名額是方便管理，不是防作弊機制，現場兌換時仍請中鼎文核對號碼。

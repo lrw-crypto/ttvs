@@ -6,6 +6,8 @@
 <meta name="theme-color" content="#2fa9f5">
 <style>html{color-scheme:light}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font-size:14px;font-family:system-ui,sans-serif}img{max-width:100%}</style>
 <title>草商探索趣</title>
+<!-- 小禮物名額 API：部署 api/redeem.js 後，把網址填在 content（例如 https://xxx.vercel.app/api/redeem）；留空時用同網站的 api/redeem -->
+<meta name="caotun-redeem-api" content="">
 <meta name="description" content="草商探索趣：今天換你當草屯商工新生！帶著探索護照逛校園、完成科別小任務收集金幣，找到你想挑戰的方向。">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -153,6 +155,7 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0
 .npcText p{margin:0;font-size:15px;line-height:1.75}
 .npcProof{border:3px dashed var(--coin);border-radius:16px;padding:10px 14px;display:flex;flex-direction:column;gap:2px;background:#fff8dc;color:#5a4316}
 .npcProof span{font-size:11px;font-weight:700;letter-spacing:.1em}
+.npcProof em{font-style:normal;font-family:var(--f-num);font-weight:900;font-size:22px;color:#d9384f}
 .npcProof b{font-family:var(--f-display);font-weight:400;font-size:20px}
 @media (max-width:760px){ .npcCard{grid-template-columns:120px 1fr;gap:12px;padding:16px} .npcText h2{font-size:22px} }
 .me{position:absolute;left:0;top:0;font-size:11px;font-weight:700;background:var(--brick);color:#fff;padding:2px 8px;border-radius:999px;pointer-events:none;white-space:nowrap}
@@ -355,7 +358,7 @@ figcaption{font-size:12px;color:var(--muted);line-height:1.45}
   <div id="game" class="ov" hidden role="dialog" aria-modal="true" aria-labelledby="gTitle"><div class="panel"><div class="ovHead"><span class="tag" id="gTag"></span><h2 id="gTitle"></h2><p id="gSub"></p><button class="x" data-close="game" aria-label="關閉">×</button></div><div class="ovBody" id="gBody"></div></div></div>
   <div id="pass" class="ov" hidden role="dialog" aria-modal="true" aria-labelledby="pTitle"><div class="panel"><div class="ovHead"><div class="passTop"><span id="pAva"></span><div><h2 id="pTitle">草商探索護照</h2><p id="pSub"></p></div></div><button class="x" data-close="pass" aria-label="關閉">×</button></div><div class="ovBody" id="pBody"></div></div></div>
   <div id="intro" class="ov" hidden role="dialog" aria-modal="true" aria-labelledby="inTitle"><div class="panel"><div class="ovHead" id="inHead"><span class="tag" id="inTag"></span><h2 id="inTitle"></h2><p id="inSub"></p><nav class="inNav" id="inNav" aria-label="章節"></nav><button class="x" data-close="intro" aria-label="關閉">×</button></div><div class="ovBody" id="inBody"></div></div></div>
-  <div id="npc" class="ov" hidden role="dialog" aria-modal="true" aria-labelledby="npcTitle"><div class="panel"><div class="npcCard"><img src="media/npc/zhongdingwen.jpg" alt="客服中鼎文的公仔：圓框眼鏡、綁馬尾、穿白色藍袖運動服" width="480" height="720"><div class="npcText"><span class="tag" style="background:#ff4f6d">客服</span><h2 id="npcTitle">中鼎文</h2><p id="npcMsg"></p><div id="npcProof" class="npcProof" hidden></div><p class="note">她騎著滑板車在校園裡繞，看到她就可以點她。小禮物請在學校現場找中鼎文兌換。</p><button class="btn main" data-close="npc">好，繼續探索</button></div></div><button class="x" data-close="npc" aria-label="關閉">×</button></div></div>
+  <div id="npc" class="ov" hidden role="dialog" aria-modal="true" aria-labelledby="npcTitle"><div class="panel"><div class="npcCard"><img src="media/npc/zhongdingwen.jpg" alt="客服中鼎文的公仔：圓框眼鏡、綁馬尾、穿白色藍袖運動服" width="480" height="720"><div class="npcText"><span class="tag" style="background:#ff4f6d">客服</span><h2 id="npcTitle">中鼎文</h2><p id="npcMsg"></p><div id="npcProof" class="npcProof" hidden></div><p class="note" id="npcNote"></p><button class="btn main" data-close="npc">好，繼續探索</button></div></div><button class="x" data-close="npc" aria-label="關閉">×</button></div></div>
   <div id="lb" class="ov" hidden role="dialog" aria-modal="true" aria-label="放大圖片"><figure><img id="lbImg" alt=""><figcaption id="lbCap"></figcaption></figure><button class="x" data-close="lb" aria-label="關閉">×</button></div>
   <div id="info" class="ov" hidden role="dialog" aria-modal="true" aria-labelledby="iTitle"><div class="panel"><div class="ovHead"><h2 id="iTitle">玩法說明</h2><button class="x" data-close="info" aria-label="關閉">×</button></div><div class="ovBody" id="iBody"></div></div></div>
 
@@ -464,7 +467,7 @@ const SOURCES=[['學校首頁','https://www.ttvs.ntct.edu.tw/'],['課程計畫�
 
 /* ---------- progress (stored in this browser) ---------- */
 const KEY='caotun-explore-v1';
-let ST={name:'',avatar:'a',done:[],hearts:[]};
+let ST={name:'',avatar:'a',done:[],hearts:[],cid:'',claim:null};
 try{ const s=JSON.parse(localStorage.getItem(KEY)||'null'); if(s&&Array.isArray(s.done)) ST={...ST,...s}; }catch(e){}
 function save(){ try{ localStorage.setItem(KEY,JSON.stringify(ST)); }catch(e){} }
 const isDone=id=>ST.done.includes(id);
@@ -591,7 +594,7 @@ const PLAN={
 const N={ gw:[-46,0],av:[-38,0],av2:[-30,0],
   NW:[-30,-7],nA:[-27.2,-7],n1:[-18.2,-7],nB:[-9.2,-7],nL:[-3.5,-7],nE:[0,-7],n3:[8.5,-7],nF:[17.5,-7],n5:[29.5,-7],n6:[40,-7],
   SW:[-30,7],sA:[-27,7],s1:[-18,7],sB:[-9,7],sL:[-3.5,7],sC:[0,7],s3:[8.5,7],s4:[17,7],s5:[28,7],s6:[40,7],
-  c0:[-5.5,0],tower:[-7.4,0],e0:[39,0],
+  c0:[-3.9,0],tower:[-4.8,0],e0:[39,0],
   pipe:[-27.2,-9.4],gg:[-18.2,-9.4],mech:[-9.2,-9.4],eng:[0,-8.4],gj:[8.5,-8.4],admin:[29.5,-11.4],
   data:[-27,10.9],acct:[-18,10.9],biz:[-9,10.9],night:[0,10.4],life:[8.5,10.4],
   gN:[-40,-6],sport:[-40,-12.4],gS:[-40,6],track:[-40,8.6],d1:[40,-18],
@@ -609,7 +612,7 @@ const EDGES=[['gw','av'],['av','av2'],['av2','NW'],['av2','SW'],['av','gN'],['gN
 const ADJ={}; for(const k in N) ADJ[k]=[]; for(const [a,b] of EDGES){ ADJ[a].push(b); ADJ[b].push(a); }
 const NV=k=>{ const [x,z]=T2W(N[k][0],N[k][1]); return new THREE.Vector3(x,0,z); };
 function bfs(a,b){ if(a===b) return [a]; const prev={[a]:null}, q=[a]; while(q.length){ const n=q.shift(); for(const m of ADJ[n]) if(!(m in prev)){ prev[m]=n; if(m===b){ const path=[b]; let c=n; while(c){ path.unshift(c); c=prev[c]; } return path; } q.push(m); } } return [a]; }
-function nearestNode(wx,wz){ const [x,z]=W2T(wx,wz); let best=null,bd=1e9; for(const k in N){ const d=(N[k][0]-x)**2+(N[k][1]-z)**2; if(d<bd){bd=d;best=k;} } return best; }
+function nearestNode(wx,wz){ const [x,z]=W2T(wx,wz); let best=null,bd=1e9; for(const k in N){ const d=(N[k][0]-x)**2+(N[k][1]-z)**2; if(d<bd){bd=d;best=k;} } return best||'c0'; }
 
 /* =====================================================================
    GROUND — one painted canvas: brick paving, lawn, plazas, track, courts, pond, roads, paddies
@@ -769,7 +772,7 @@ function buildCampus(){
   courtyard('jiao',{left:'eng'});
   courtyard('yi',{right:'data',left:'biz',back:'acct'});
   courtyard('xue',{right:'night',back:'life'});
-  TAGS.push({name:'司令台',x:-7.6,y:5.6,z:0,land:true});
+  TAGS.push({name:'司令台',x:-5.9,y:3.4,z:0,land:true});
   for(const k of ['gong','jiao','yi','xue']){ const c=PLAN[k]; TAGS.push({name:c.name,x:c.cx,y:7.4,z:c.cz+c.face*(c.D/2-1.8),gate:true}); }
   // props that tell each part's story
   { const p=PARTS.gong.root; // CNC lathe + gear outside 機械科 wing, water tower outside 配管科 wing
@@ -797,12 +800,25 @@ function buildCampus(){
     const low=new THREE.Group(); low.position.z=-3; g.add(low); const h2=block(low,8,3,12,{wall:PINK}); hip(low,8.9,12.9,1.8,ROOFC,h2+.05);
     for(const s of [-1,1]){ const wg=new THREE.Group(); wg.position.set(s*5,0,7); g.add(wg); block(wg,2.2,1,4,{wall:PINK}); const r=cone(wg,2.2,.8,C.pav,0,FH,0,4); r.rotation.y=Math.PI/4; r.scale.set(.75,1,1.3); }
     nameplate(core,'誠愛樓',0,h-.6,3.25,0,'#5f6870');
-    { const st=new THREE.Group(); st.position.z=10.4; g.add(st); // 司令台 with blue canopy
-      box(st,10,.7,3.2,PINK); box(st,10.2,.12,3.4,GRAN,0,.7,0);
-      [[.55,1.83],[.37,2.28],[.19,2.73]].forEach(([hh,z])=>box(st,4.2,hh,.45,GRAN,0,0,z));
-      for(const x of [-4.6,-1.6,1.6,4.6]) for(const z of [-1.3,1.3]) cyl(st,.13,.13,2.15,'#f6f3ec',x,.82,z,10);
-      box(st,10.8,.14,3.9,'#ffffff',0,2.97,0); hip(st,11.2,4.3,1.0,C.pav,3.1);
-      flowerBed(st,-4.1,2.5,8,.6); flowerBed(st,4.1,2.5,8,.6); }
+    // glass-roofed entrance lobby at the foot of the tower
+    { const lb=new THREE.Group(); lb.position.z=9.45; g.add(lb); box(lb,6.2,1.25,.9,'#f4f1ea'); for(const x of [-2.2,-.75,.75,2.2]) box(lb,1.1,.95,.05,M('#9fd8ee',{roughness:.12,metalness:.25}),x,.12,.46);
+      const gr=box(lb,6.5,.12,1.3,M('#2f6b5a',{roughness:.2,metalness:.35}),0,1.25,.15); gr.rotation.x=.18; }
+    // small covered corridor behind the stage: white posts, low blue roof, taller blue gable in the middle, little white rooms either side
+    { const co=new THREE.Group(); co.position.z=10.55; g.add(co);
+      for(let x=-7.5;x<=7.51;x+=1.5) for(const z of [-.5,.5]) box(co,.16,1.55,.16,'#f6f3ec',x,0,z);
+      box(co,15.4,.14,1.5,'#ffffff',0,1.55,0);
+      for(const sgn of [-1,1]){ const r=prism(co,5.6,.45,1.7,C.pav,sgn*4.9,1.69,0); }
+      for(const x of [-1.6,1.6]) box(co,.22,2.05,.22,'#f6f3ec',x,0,.55);
+      box(co,3.6,.16,2.0,'#ffffff',0,2.05,0); prism(co,3.9,.95,2.3,C.pav,0,2.2,0); box(co,1.6,.5,.06,'#2a83c4',0,1.72,1.04);
+      for(const sgn of [-1,1]){ box(co,1.6,1.25,1,'#f7f6f2',sgn*3.1,0,-.05); box(co,.9,.55,.05,'#5f86a8',sgn*3.1,.55,.46); } }
+    // 司令台: open-air raised platform on a red-brick apron, hedges and flowers in front
+    { const st=new THREE.Group(); st.position.z=12.1; g.add(st);
+      const ap=box(st,9.6,.1,2.6,'#d9715c'); ap.castShadow=false;
+      st.add(new THREE.Mesh(new THREE.PlaneGeometry(9.5,2.5).rotateX(-Math.PI/2),new THREE.MeshStandardMaterial({map:cachedTex('brickApron',(c,w,h)=>{ c.fillStyle='#d9715c'; c.fillRect(0,0,w,h); c.strokeStyle='rgba(255,230,215,.55)'; c.lineWidth=2; for(let y=0;y<h;y+=16){ c.beginPath(); c.moveTo(0,y); c.lineTo(w,y); c.stroke(); for(let x=(y/16)%2*16;x<w;x+=32){ c.beginPath(); c.moveTo(x,y); c.lineTo(x,y+16); c.stroke(); } } },512,128),roughness:.9})));
+      st.children[st.children.length-1].position.y=.11;
+      box(st,4.8,.55,1.7,'#bdb6ad',0,.1,-.15); box(st,4.95,.08,1.85,'#d6d0c7',0,.65,-.15);
+      for(const [w,hh,z] of [[2,.38,.86],[2,.22,1.12]]) box(st,w,hh,.3,'#cfc8be',0,.1,z);
+      for(const sgn of [-1,1]){ const hd=box(st,3.6,.55,.55,'#3f9a3c',sgn*2.9,0,1.55); for(let k=0;k<6;k++) sph(st,.11,pick(['#ff4a2a','#ffd23f','#ff7ab8','#ffffff']),sgn*2.9-1.5+k*.6,.6,1.55,6).castShadow=false; } }
     reg('tower',g,0); }
   // 誠治樓 (行政), dorms & dining
   { const g=hipBlock(29.5,-17,14,3,10,'誠治樓',ROOFC); pavilion(g,0,5.8,1.3); }
@@ -979,7 +995,6 @@ function buildWorld(){
   TAGS.push({name:'新庄二路',x:82,y:3.5,z:-12,world:true,road:true});
   // ---------- 新庄國小 ----------
   { const g=new THREE.Group(); g.position.set(53,0,38.5); scene.add(g); block(g,20,3,4,{wall:'#fff3c4',win:'#6f93b3'}); hip(g,20.8,4.8,1.2,'#e05a4a',3*FH+.05); }
-  TAGS.push({name:'新庄國小',x:53,y:7,z:36,world:true,land:true});
   // ---------- trees along the roads ----------
   for(let t=.03;t<1;t+=.035){ const q=roadAt(ROADS.hwy14,t,6.2); if(q.x>-36&&q.z>-48&&q.z<48) continue; if(Math.abs(q.z-EXPZ(q.x))<7) continue; if(Object.values(SHOPS).some(S=>Math.hypot(q.x-S.x,q.z-S.z)<7)||(q.x>-42&&q.z>30&&q.z<49)) continue; tree(scene,q.x,q.z,.9,C.tree2); }
   for(let i=0;i<60;i++){ const x=rnd(38,72), z=rnd(-115,115); if(x>38&&x<68&&z>18&&z<46) continue; if(!freeLot(x,z,1.5)) continue; tree(scene,x,z,rnd(.9,1.3),pick([C.tree,C.tree2,'#ff9ec4'])); }
@@ -1152,19 +1167,34 @@ function makePlayer(){
   player={mesh,node:'gateS',path:[],speed:3.2,phase:0};
 }
 function walkPlayerTo(node){ if(!player) return; const from=nearestNode(player.mesh.position.x,player.mesh.position.z); player.path=bfs(from,node).map(k=>NV(k)); }
-function stepWalker(m,tgt,sp,t,phase,dt){
+// Everyone who moves on foot or on wheels: {m:Object3D, r:radius, w:weight}. Rebuilt each frame.
+let AGENTS=[];
+function collectAgents(){ AGENTS=students.map(s=>({m:s.mesh,r:.34,w:1})); if(player) AGENTS.push({m:player.mesh,r:.38,w:2}); if(npc) AGENTS.push({m:npc.g,r:.62,w:5}); }
+// Look ahead along the walking direction: slow down behind someone and step to the side (keep right) to pass.
+function lookAhead(m,r,dx,dz){ let slow=1, side=0; const px=dz, pz=-dx; // right-hand side
+  for(const a of AGENTS){ if(a.m===m) continue; const ox=a.m.position.x-m.position.x, oz=a.m.position.z-m.position.z; if(ox*ox+oz*oz>9) continue;
+    const along=ox*dx+oz*dz, lat=ox*px+oz*pz, gap=r+a.r;
+    if(along>0 && along<gap+1.4 && Math.abs(lat)<gap+.2){ slow=Math.min(slow,Math.max(0,(along-gap)/1.4)); side=lat>0.05?-1:1; } }
+  return {slow,side,px,pz}; }
+// Hard rule: two people never share the same spot. Push overlapping pairs apart; the heavier one (scooter, player) yields less.
+function separate(){ for(let i=0;i<AGENTS.length;i++) for(let j=i+1;j<AGENTS.length;j++){ const A=AGENTS[i],Bq=AGENTS[j]; const dx=Bq.m.position.x-A.m.position.x, dz=Bq.m.position.z-A.m.position.z; const d=Math.hypot(dx,dz), min=A.r+Bq.r;
+    if(d<min){ const nx=d>1e-4?dx/d:Math.random()-.5, nz=d>1e-4?dz/d:Math.random()-.5, o=min-d, wa=Bq.w/(A.w+Bq.w), wb=A.w/(A.w+Bq.w); A.m.position.x-=nx*o*wa; A.m.position.z-=nz*o*wa; Bq.m.position.x+=nx*o*wb; Bq.m.position.z+=nz*o*wb; } } }
+function stepWalker(m,tgt,sp,t,phase,dt,r=.34){
   const d=tgt.clone().sub(m.position); d.y=0; const L=d.length();
   if(L<sp){ m.position.x=tgt.x; m.position.z=tgt.z; return true; }
-  m.position.addScaledVector(d,sp/L); const yaw=Math.atan2(d.x,d.z); m.rotation.y+=(((yaw-m.rotation.y+Math.PI*3)%(Math.PI*2))-Math.PI)*Math.min(1,dt*10);
+  const dx=d.x/L, dz=d.z/L, la=lookAhead(m,r,dx,dz);
+  if(la.slow<.25 && L<2) return true; // someone is standing on the spot: stop next to it instead
+  const f=sp*(.15+.85*la.slow); m.position.x+=dx*f+la.px*la.side*sp*.55; m.position.z+=dz*f+la.pz*la.side*sp*.55; const yaw=Math.atan2(dx,dz); m.rotation.y+=(((yaw-m.rotation.y+Math.PI*3)%(Math.PI*2))-Math.PI)*Math.min(1,dt*10);
   const sw=Math.sin(t*10+phase); const u=m.userData; u.legs[0].rotation.x=sw*.55; u.legs[1].rotation.x=-sw*.55; u.arms[0].rotation.set(-sw*.6,0,0); u.arms[1].rotation.set(sw*.6,0,0); m.position.y=Math.abs(sw)*.03; return false;
 }
 function updateWalkers(t,dt){
+  collectAgents();
   for(const s of students){
     if(s.wait>0){ s.wait-=dt; const u=s.mesh.userData; u.legs[0].rotation.x=u.legs[1].rotation.x=0; s.mesh.position.y=0; u.head.rotation.z=Math.sin(t*2+s.phase)*.07; if(s.wave>0){ s.wave-=dt; u.arms[1].rotation.set(0,0,2.5+Math.sin(t*9)*.3); } else { u.arms[0].rotation.set(0,0,0); u.arms[1].rotation.set(0,0,0); if(Math.random()<dt*.15) s.wave=rnd(1.2,2.4); } continue; }
     if(!s.next){ const opts=ADJ[s.node].filter(n=>n!==s.prev && !['hilife','fish','c1','i0','pv'].includes(n)||Math.random()<.04); s.next=pick(opts.length?opts:ADJ[s.node]); s.target=NV(s.next).add(new THREE.Vector3(rnd(-.5,.5),0,rnd(-.5,.5))); }
     if(stepWalker(s.mesh,s.target,s.speed*dt,t,s.phase,dt)){ s.prev=s.node; s.node=s.next; s.next=null; if(Math.random()<.3) s.wait=rnd(1.5,5); }
   }
-  if(player){ if(player.path.length){ const tgt=player.path[0]; if(stepWalker(player.mesh,tgt,player.speed*dt,t,0,dt)){ player.path.shift(); } } else { const u=player.mesh.userData; u.legs[0].rotation.x=u.legs[1].rotation.x=0; u.arms[0].rotation.set(0,0,0); u.arms[1].rotation.set(0,0,2.5+Math.sin(t*6)*.25); player.mesh.position.y=0; } }
+  if(player){ if(player.path.length){ const tgt=player.path[0]; if(stepWalker(player.mesh,tgt,player.speed*dt,t,0,dt,.38)){ player.path.shift(); } } else { const u=player.mesh.userData; u.legs[0].rotation.x=u.legs[1].rotation.x=0; u.arms[0].rotation.set(0,0,0); u.arms[1].rotation.set(0,0,2.5+Math.sin(t*6)*.25); player.mesh.position.y=0; } }
 }
 
 /* ---------- NPC 中鼎文（客服）：騎滑板車繞校園，集滿金幣可以找她換小禮物 ---------- */
@@ -1193,17 +1223,48 @@ function updateNPC(t,dt){
   if(n.wait>0){ n.wait-=dt; n.fig.userData.arms[1].rotation.set(0,0,2.5+Math.sin(t*9)*.3); return; }
   n.fig.userData.arms[1].rotation.set(-1.15,0,0);
   const tgt=n.pts[(n.i+1)%n.pts.length]; const d=tgt.clone().sub(n.g.position); d.y=0; const L=d.length(), st=n.speed*dt;
-  if(L<st){ n.g.position.copy(tgt); n.i=(n.i+1)%n.pts.length; if(Math.random()<.22) n.wait=rnd(1.5,3); }
-  else { n.g.position.addScaledVector(d,st/L); const yaw=Math.atan2(d.x,d.z); n.g.rotation.y+=(((yaw-n.g.rotation.y+Math.PI*3)%(Math.PI*2))-Math.PI)*Math.min(1,dt*6); n.wh.forEach(w=>w.rotation.x+=st/.11); n.g.position.y=Math.abs(Math.sin(t*14))*.02; }
+  if(L<st){ n.g.position.x=tgt.x; n.g.position.z=tgt.z; n.i=(n.i+1)%n.pts.length; if(Math.random()<.22) n.wait=rnd(1.5,3); }
+  else { const dx=d.x/L, dz=d.z/L, la=lookAhead(n.g,.62,dx,dz); const f=st*(.1+.9*la.slow); n.g.position.x+=dx*f+la.px*la.side*st*.6; n.g.position.z+=dz*f+la.pz*la.side*st*.6; const yaw=Math.atan2(d.x,d.z); n.g.rotation.y+=(((yaw-n.g.rotation.y+Math.PI*3)%(Math.PI*2))-Math.PI)*Math.min(1,dt*6); n.wh.forEach(w=>w.rotation.x+=st/.11); n.g.position.y=Math.abs(Math.sin(t*14))*.02; }
 }
-function openNPC(){
+/* 小禮物名額：前 PRIZE_LIMIT 名集滿金幣的人可兌換。名額記在伺服器（api/redeem.js），
+   伺服器連不到時畫面照常顯示憑證，並註明名額以中鼎文現場確認為準。 */
+const PRIZE_LIMIT=50;
+const REDEEM_API=(document.querySelector('meta[name="caotun-redeem-api"]')?.content||'').trim()||'api/redeem';
+function cid(){ if(!ST.cid){ ST.cid=(crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2,12)); save(); } return ST.cid; }
+async function redeemCall(method,body){
+  const ctl=new AbortController(), tm=setTimeout(()=>ctl.abort(),6000);
+  try{ const r=await fetch(REDEEM_API,{method,cache:'no-store',signal:ctl.signal,headers:body?{'Content-Type':'application/json'}:undefined,body:body?JSON.stringify(body):undefined});
+    if(!(r.headers.get('content-type')||'').includes('json')) return null; const j=await r.json(); return r.ok?j:(j&&j.error?{error:j.error}:null); }
+  catch(e){ return null; } finally{ clearTimeout(tm); }
+}
+let claiming=null;
+async function claimPrize(){
+  if(ST.claim) return {ok:true,no:ST.claim.no};
+  if(ST.done.length<Q.length) return null;
+  if(!claiming) claiming=redeemCall('POST',{cid:cid(),name:ST.name||'草商新生'}).then(r=>{ claiming=null; if(r&&r.ok&&r.no){ ST.claim={no:r.no,at:Date.now()}; save(); } if(r&&r.soldOut){ ST.soldOut=true; save(); } return r; });
+  return claiming;
+}
+function npcView({msg,proof,note}){ $('#npcMsg').innerHTML=msg; $('#npcProof').hidden=!proof; if(proof) $('#npcProof').innerHTML=proof; $('#npcNote').textContent=note; }
+const proofHTML=no=>`<span>兌換憑證</span><b>${esc(ST.name||'草商新生')}</b>${no?`<em>第 ${no} 位</em>`:''}<small>金幣 ${ST.done.length} / ${Q.length} · ${new Date(ST.claim?.at||Date.now()).toLocaleString('zh-TW',{timeZone:'Asia/Taipei',hour12:false})}</small>`;
+async function openNPC(){
   const all=ST.done.length>=Q.length, n=ST.done.length;
-  $('#npcMsg').innerHTML= all
-    ? `<b>你已經集滿 ${Q.length} 枚金幣！</b><br>把這個畫面給中鼎文看，就可以換小禮物囉。`
-    : `<b>加油，集滿金幣可以找中鼎文換小禮物！</b><br>你現在有 ${n} 枚，還差 <b>${Q.length-n}</b> 枚。`;
-  $('#npcProof').hidden=!all;
-  if(all) $('#npcProof').innerHTML=`<span>兌換憑證</span><b>${esc(ST.name||'草商新生')}</b><small>金幣 ${n} / ${Q.length} · ${new Date().toLocaleString('zh-TW',{timeZone:'Asia/Taipei',hour12:false})}</small>`;
+  const baseNote='她騎著滑板車在校園裡繞，看到她就可以點她。小禮物請在學校現場找中鼎文兌換。';
+  npcView({msg:all?'<b>查詢小禮物名額中…</b>':`<b>加油，集滿金幣可以找中鼎文換小禮物！</b><br>你現在有 ${n} 枚，還差 <b>${Q.length-n}</b> 枚。`,note:baseNote});
   $('#npc').hidden=false;
+  if(ST.claim){ npcView({msg:`<b>你已經集滿 ${Q.length} 枚金幣！</b><br>你是第 <b>${ST.claim.no}</b> 位，把這個畫面給中鼎文看，就可以換小禮物囉。`,proof:proofHTML(ST.claim.no),note:baseNote}); return; }
+  if(all){
+    const r=await claimPrize();
+    if(r&&r.ok) npcView({msg:`<b>恭喜！你是第 ${r.no} 位集滿金幣的探索者。</b><br>把這個畫面給中鼎文看，就可以換小禮物囉。`,proof:proofHTML(r.no),note:baseNote});
+    else if(r&&r.soldOut) npcView({msg:'<b>謝謝探索！</b><br>獎品已經兌換完畢，下次活動再見。',note:'你已經走遍草商的每個角落，護照上的印章都還在喔。'});
+    else npcView({msg:`<b>你已經集滿 ${Q.length} 枚金幣！</b><br>把這個畫面給中鼎文看，就可以換小禮物囉。`,proof:proofHTML(null),note:r&&r.error?`${r.error}。名額（前 ${PRIZE_LIMIT} 名）以中鼎文現場確認為準。`:`目前連不到名額伺服器，名額（前 ${PRIZE_LIMIT} 名）以中鼎文現場確認為準。`});
+    return;
+  }
+  const st=await redeemCall('GET');
+  if($('#npc').hidden) return;
+  if(st&&typeof st.left==='number'){
+    if(st.left<=0) npcView({msg:'<b>謝謝探索！</b><br>小禮物已經兌換完畢，還是可以繼續收集金幣、認識各科喔。',note:baseNote});
+    else npcView({msg:`<b>加油，集滿金幣可以找中鼎文換小禮物！</b><br>你現在有 ${n} 枚，還差 <b>${Q.length-n}</b> 枚。小禮物限量 ${st.limit} 份，目前還剩 <b>${st.left}</b> 份。`,note:baseNote});
+  } else npcView({msg:`<b>加油，集滿金幣可以找中鼎文換小禮物！</b><br>你現在有 ${n} 枚，還差 <b>${Q.length-n}</b> 枚。小禮物限量前 ${PRIZE_LIMIT} 名。`,note:baseNote});
 }
 
 /* =====================================================================
@@ -1383,7 +1444,7 @@ function winGame(id){
   const q=QI[id]; const fresh=!isDone(id);
   const line=q.kind==='dept'?'你認識了這個科別！':'你發現了校園生活！';
   $('#gBody').innerHTML=`<div class="win"><div class="bigcoin">${q.short}</div><h3>${line}</h3><p>${fresh?`<b>${esc(q.name)}</b> 的印章蓋上護照了，獲得金幣一枚。`:'這枚金幣之前已經收過囉，再挑戰其他建築吧！'}</p><div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center"><button class="btn main" id="collect">${fresh?'收下金幣':'好的'}</button></div></div>`;
-  $('#collect').onclick=()=>{ $('#game').hidden=true; if(fresh){ ST.done.push(id); save(); if(ST.done.length===Q.length) setTimeout(()=>{ toast('金幣集滿了！去找騎滑板車的客服中鼎文換小禮物'); },2600); flyCoin(); coinPop(id); refreshLabels(); renderTasks(); renderCard(); const dn=DEPTS.filter(d=>isDone(d.id)).length; if(q.kind==='dept'&&dn===DEPTS.length) setTimeout(()=>{ toast(`${DEPTS.length} 個科別都認識了！打開護照領取探索證書`); openPass(); },1600); } };
+  $('#collect').onclick=()=>{ $('#game').hidden=true; if(fresh){ ST.done.push(id); save(); if(ST.done.length===Q.length) setTimeout(async()=>{ const r=await claimPrize(); toast(r&&r.ok?`金幣集滿了！你是第 ${r.no} 位，去找客服中鼎文換小禮物`:r&&r.soldOut?'金幣集滿了！謝謝探索，小禮物已經兌換完畢':'金幣集滿了！去找騎滑板車的客服中鼎文換小禮物'); },2600); flyCoin(); coinPop(id); refreshLabels(); renderTasks(); renderCard(); const dn=DEPTS.filter(d=>isDone(d.id)).length; if(q.kind==='dept'&&dn===DEPTS.length) setTimeout(()=>{ toast(`${DEPTS.length} 個科別都認識了！打開護照領取探索證書`); openPass(); },1600); } };
 }
 function openIntro(id){
   const q=QI[id], I=DEPT_INTRO[id]; if(!I) return;
@@ -1464,7 +1525,7 @@ $('#coinBtn').addEventListener('click',openPass); $('#passBtn').addEventListener
 $('#homeBtn').addEventListener('click',()=>{ select(null); home(); });
 $('#taskBtn').addEventListener('click',()=>{ $('#tasks').classList.toggle('open'); if($('#tasks').classList.contains('open')) select(null); });
 $('#infoBtn').addEventListener('click',()=>{
-  $('#iBody').innerHTML=`<p><b>怎麼玩</b></p><ul><li>直接點建築（或上面的名牌）就能看科別介紹，不用走到門口；你的角色會自己走過去。</li><li>每棟建築都有一個小任務，完成後會顯示「你認識了這個科別！」並得到一枚金幣。</li><li>在科別卡片按「♡ 我有興趣」，十個科別都認識後，護照會發給你一張寫著你方向的「探索證書」。</li><li>看到頭上寫「客服」、騎滑板車的中鼎文就點她。集滿 13 枚金幣，可以找她換小禮物。</li><li>拖曳可以轉動視角，捏合或滾輪可以縮放，點地面可以讓角色走過去。</li></ul>
+  $('#iBody').innerHTML=`<p><b>怎麼玩</b></p><ul><li>直接點建築（或上面的名牌）就能看科別介紹，不用走到門口；你的角色會自己走過去。</li><li>每棟建築都有一個小任務，完成後會顯示「你認識了這個科別！」並得到一枚金幣。</li><li>在科別卡片按「♡ 我有興趣」，十個科別都認識後，護照會發給你一張寫著你方向的「探索證書」。</li><li>看到頭上寫「客服」、騎滑板車的中鼎文就點她。集滿 13 枚金幣的前 50 名，可以找她換小禮物；名額滿了會顯示「獎品已經兌換完畢」。</li><li>拖曳可以轉動視角，捏合或滾輪可以縮放，點地面可以讓角色走過去。</li></ul>
   <p><b>校園廣播</b></p><p>底部的廣播與同學頭上的對話框來自課程 Discord（由 TA Bot 推送到 <code>api/feed</code>）。目前狀態：${feedMode==='live'?'即時':'示範內容'}。</p>
   <p><b>資料來源</b></p><ul>${SOURCES.map(s=>`<li><a href="${s[1]}" target="_blank" rel="noopener">${esc(s[0])}</a></li>`).join('')}</ul>
   <p class="note">校園配置依「115 學年度全校平面圖」；北邊是中投快速道路，西邊是民房，正校門正對面是萊爾富、右手邊是南台灣土魠魚羹。誠工樓、誠教樓、藝升樓、誠學樓依實景照片做成三合院造型；比例為遊戲用的示意。校外商店以一般店面呈現。進度只存在這台裝置的瀏覽器裡。</p>`;
@@ -1509,7 +1570,7 @@ function frame(){
   const dt=Math.min(.05,clock.getDelta()); T+=dt*(reduceMotion?.4:1);
   for(const f of anim) f(T,dt);
   for(let i=fx.length-1;i>=0;i--) if(!fx[i](dt)) fx.splice(i,1);
-  updateWalkers(T,dt); updateNPC(T,dt);
+  updateWalkers(T,dt); updateNPC(T,dt); separate();
   if(selRing.visible) selRing.material.opacity=.55+.4*Math.sin(T*4);
   if(fly){ fly.k+=dt/fly.dur; const k=Math.min(1,fly.k); const e=k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2; camera.position.lerpVectors(fly.p0,fly.p1,e); controls.target.lerpVectors(fly.t0,fly.t1,e); if(k>=1) fly=null; }
   controls&&controls.update();
