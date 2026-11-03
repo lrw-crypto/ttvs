@@ -142,6 +142,19 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0
 .bl .nm{background:var(--paper);border:2px solid var(--line);border-radius:12px;padding:3px 10px;font-family:var(--f-display);font-size:14px;white-space:nowrap;box-shadow:0 3px 0 rgba(110,70,60,.2);color:var(--ink)}
 .bl.sel .nm,.bl:hover .nm{background:var(--coin);border-color:var(--coin);color:#3d2c00}
 @keyframes bob{50%{transform:translateY(-5px)}}
+.npcTag{position:absolute;left:0;top:0;display:flex;flex-direction:column;align-items:center;border:0;background:none;padding:0;cursor:pointer;pointer-events:auto}
+.npcTag b{font-size:12px;background:#ff4f6d;color:#fff;padding:2px 10px;border-radius:999px;box-shadow:0 3px 0 #d9384f;font-family:var(--f-display);font-weight:400;animation:bob 1.6s ease-in-out infinite}
+.npcTag span{font-size:11px;font-weight:700;color:#3d3040;background:rgba(255,255,255,.9);border-radius:8px;padding:0 6px;margin-top:3px}
+#npc>.panel{width:min(620px,100%);position:relative}
+.npcCard{display:grid;grid-template-columns:minmax(0,220px) 1fr;gap:16px;padding:20px;align-items:center}
+.npcCard img{width:100%;height:auto;border-radius:18px;background:#f2ede6}
+.npcText{display:flex;flex-direction:column;gap:10px;align-items:flex-start;min-width:0}
+.npcText h2{font-size:28px}
+.npcText p{margin:0;font-size:15px;line-height:1.75}
+.npcProof{border:3px dashed var(--coin);border-radius:16px;padding:10px 14px;display:flex;flex-direction:column;gap:2px;background:#fff8dc;color:#5a4316}
+.npcProof span{font-size:11px;font-weight:700;letter-spacing:.1em}
+.npcProof b{font-family:var(--f-display);font-weight:400;font-size:20px}
+@media (max-width:760px){ .npcCard{grid-template-columns:120px 1fr;gap:12px;padding:16px} .npcText h2{font-size:22px} }
 .me{position:absolute;left:0;top:0;font-size:11px;font-weight:700;background:var(--brick);color:#fff;padding:2px 8px;border-radius:999px;pointer-events:none;white-space:nowrap}
 .bub{position:absolute;left:0;top:0;background:#fffdf6;color:#463a37;border-radius:14px;padding:5px 10px;font-size:12px;max-width:190px;line-height:1.4;box-shadow:0 3px 0 rgba(0,0,0,.12);pointer-events:none;animation:pop .3s ease}
 .bub b{display:block;font-size:10.5px;color:#a0857a}
@@ -342,6 +355,7 @@ figcaption{font-size:12px;color:var(--muted);line-height:1.45}
   <div id="game" class="ov" hidden role="dialog" aria-modal="true" aria-labelledby="gTitle"><div class="panel"><div class="ovHead"><span class="tag" id="gTag"></span><h2 id="gTitle"></h2><p id="gSub"></p><button class="x" data-close="game" aria-label="關閉">×</button></div><div class="ovBody" id="gBody"></div></div></div>
   <div id="pass" class="ov" hidden role="dialog" aria-modal="true" aria-labelledby="pTitle"><div class="panel"><div class="ovHead"><div class="passTop"><span id="pAva"></span><div><h2 id="pTitle">草商探索護照</h2><p id="pSub"></p></div></div><button class="x" data-close="pass" aria-label="關閉">×</button></div><div class="ovBody" id="pBody"></div></div></div>
   <div id="intro" class="ov" hidden role="dialog" aria-modal="true" aria-labelledby="inTitle"><div class="panel"><div class="ovHead" id="inHead"><span class="tag" id="inTag"></span><h2 id="inTitle"></h2><p id="inSub"></p><nav class="inNav" id="inNav" aria-label="章節"></nav><button class="x" data-close="intro" aria-label="關閉">×</button></div><div class="ovBody" id="inBody"></div></div></div>
+  <div id="npc" class="ov" hidden role="dialog" aria-modal="true" aria-labelledby="npcTitle"><div class="panel"><div class="npcCard"><img src="media/npc/zhongdingwen.jpg" alt="客服中鼎文的公仔：圓框眼鏡、綁馬尾、穿白色藍袖運動服" width="480" height="720"><div class="npcText"><span class="tag" style="background:#ff4f6d">客服</span><h2 id="npcTitle">中鼎文</h2><p id="npcMsg"></p><div id="npcProof" class="npcProof" hidden></div><p class="note">她騎著滑板車在校園裡繞，看到她就可以點她。小禮物請在學校現場找中鼎文兌換。</p><button class="btn main" data-close="npc">好，繼續探索</button></div></div><button class="x" data-close="npc" aria-label="關閉">×</button></div></div>
   <div id="lb" class="ov" hidden role="dialog" aria-modal="true" aria-label="放大圖片"><figure><img id="lbImg" alt=""><figcaption id="lbCap"></figcaption></figure><button class="x" data-close="lb" aria-label="關閉">×</button></div>
   <div id="info" class="ov" hidden role="dialog" aria-modal="true" aria-labelledby="iTitle"><div class="panel"><div class="ovHead"><h2 id="iTitle">玩法說明</h2><button class="x" data-close="info" aria-label="關閉">×</button></div><div class="ovBody" id="iBody"></div></div></div>
 
@@ -420,7 +434,7 @@ const DEPT_INTRO={
     courses:[['一年級',['數位科技概論','資訊科技概論','程式語言與設計','商業概論','會計學']],
              ['二年級',['多媒體製作與應用','數位科技應用','行動裝置應用設計','專題製作','網頁設計','軟體應用','邏輯設計']],
              ['三年級',['計算機應用','資料庫應用','電子商務','數位影像設計','商業溝通']]],
-    projects:{ topics:['手機 APP 程式','創客實作','AI 智能運用'], photos:[['proj-plant.jpg','智能植栽',640,573],['proj-car.jpg','智能小車製作',640,553]] },
+    projects:{ topics:['手機 APP 程式','創客實作','AI 智能運用'], photos:[['proj-plant.jpg','智能植栽',640,573],['proj-car.jpg','智能小車製作',553,640]] },
     certs:[['一年級',['勞動部 丙級會計事務－人工記帳']],
            ['二年級',['PVQC 資訊類專業英文詞彙','勞動部 丙級電腦軟體應用','MOCC APP 手機程式','GTC AI 人工智慧應用']],
            ['三年級',['電腦軟體應用乙級','電子商務','資訊科技']]],
@@ -731,7 +745,7 @@ function courtyard(key,quests){
   for(const [x,z] of [[-2.8,-1.5],[2.8,1.5],[0,-4],[-3,3.5]]) tree(root,x,z,1.15,C.tree2);
   for(const s of (c.pav||[])) pavilion(root,s*(c.W/2+1.4),c.D/2-.6,.9);
   const map={left:gl,right:gr,back:gb,gate:gg};
-  root.updateMatrixWorld(true);
+  root.updateWorldMatrix(true,true);
   for(const [slot,id] of Object.entries(quests)) reg(id,map[slot],c.face);
   PARTS[key]={root,gate:gg};
 }
@@ -740,7 +754,7 @@ function courtyard(key,quests){
    BUILDINGS
    ===================================================================== */
 const B={}; const pickables=[];
-function reg(id,g,face=1,dirW=null){ g.updateMatrixWorld(true); const bx=new THREE.Box3().setFromObject(g); const c=bx.getCenter(new THREE.Vector3()), sz=bx.getSize(new THREE.Vector3());
+function reg(id,g,face=1,dirW=null){ g.updateWorldMatrix(true,true); const bx=new THREE.Box3().setFromObject(g); const c=bx.getCenter(new THREE.Vector3()), sz=bx.getSize(new THREE.Vector3());
   B[id]={g,c,top:bx.max.y+.5,r:Math.max(4,Math.min(10,Math.hypot(sz.x,sz.z)*.45)),face,dir:dirW||(face===0?new THREE.Vector3(0,0,1):new THREE.Vector3(face>0?-1:1,0,0)),base:g.scale.clone()};
   g.traverse(o=>{ if(o.isMesh){ o.userData.q=id; pickables.push(o);} }); }
 function nameplate(p,text,x,y,z,ry,col){ return plane(p,Math.min(4.2,text.length*.5+.8),.55,signTex(text,col,'#ffffff',Math.max(320,text.length*80+60),120,66),x,y,z,ry); }
@@ -1092,6 +1106,11 @@ function makeStudent(o){
     const back=add(geo('hairBack',()=>new THREE.CapsuleGeometry(.2,.32,4,10)),o.hair,head,0,-.24,-.17); back.scale.set(1.65,1,.7);
     for(const s of [-1,1]){ const l=add(geo('hairSide',()=>new THREE.CapsuleGeometry(.075,.34,3,8)),o.hair,head,s*.31,-.22,.04); l.rotation.z=s*.08; }
     const bang=small('bang',()=>new THREE.SphereGeometry(.3,14,8),o.hair,head,0,.2,.17); bang.scale.set(1.15,.42,.72);
+  } else if(o.style==='pony'){
+    const tail=add(geo('ponyTail',()=>new THREE.CapsuleGeometry(.11,.3,4,10)),o.hair,head,.12,-.22,-.3); tail.rotation.set(.5,0,-.25);
+    add(geo('ponyTie',()=>new THREE.SphereGeometry(.07,8,6)),'#2f63d6',head,.06,0,-.33,false);
+    const bang=small('bang',()=>new THREE.SphereGeometry(.3,14,8),o.hair,head,0,.2,.17); bang.scale.set(1.15,.42,.72);
+    for(const s2 of [-1,1]){ const l=add(geo('ponySide',()=>new THREE.CapsuleGeometry(.06,.16,3,8)),o.hair,head,s2*.32,-.08,.06); }
   } else if(o.style==='spiky'){
     for(let i=0;i<7;i++){ const a=i/7*Math.PI*2; const sp=small('spike',()=>new THREE.ConeGeometry(.08,.22,6),o.hair,head,Math.cos(a)*.2,.33,Math.sin(a)*.2-.03); sp.rotation.set(Math.sin(a)*.6,0,-Math.cos(a)*.6); }
     const f=small('fringe',()=>new THREE.SphereGeometry(.28,12,8),o.hair,head,0,.2,.2); f.scale.set(1.15,.4,.6);
@@ -1148,6 +1167,45 @@ function updateWalkers(t,dt){
   if(player){ if(player.path.length){ const tgt=player.path[0]; if(stepWalker(player.mesh,tgt,player.speed*dt,t,0,dt)){ player.path.shift(); } } else { const u=player.mesh.userData; u.legs[0].rotation.x=u.legs[1].rotation.x=0; u.arms[0].rotation.set(0,0,0); u.arms[1].rotation.set(0,0,2.5+Math.sin(t*6)*.25); player.mesh.position.y=0; } }
 }
 
+/* ---------- NPC 中鼎文（客服）：騎滑板車繞校園，集滿金幣可以找她換小禮物 ---------- */
+const NPC_ROUTE=['gateS','e1','s6','e0','n6','n5','nF','n3','nE','nL','c0','sL','sC','s3','s4','s5','s6','e1'];
+let npc=null;
+function makeNPC(){
+  const g=new THREE.Group(); scene.add(g);
+  const sc=new THREE.Group(); g.add(sc); // kick scooter
+  box(sc,.32,.06,1.15,'#ff4f6d',0,.12,0); box(sc,.3,.02,1.0,'#2b2b2b',0,.18,0);
+  const wh=[]; for(const z of [-.5,.5]){ const w=add(geo('scWheel',()=>new THREE.CylinderGeometry(.11,.11,.08,14)),'#2b2b2b',sc,0,.11,z); w.rotation.z=Math.PI/2; wh.push(w); }
+  const stem=add(geo('scStem',()=>new THREE.CylinderGeometry(.035,.035,1.15,8)),'#cfd5da',sc,0,.68,.5); stem.rotation.x=-.12;
+  const bar=add(geo('scBar',()=>new THREE.CylinderGeometry(.03,.03,.6,8)),'#cfd5da',sc,0,1.24,.43); bar.rotation.z=Math.PI/2;
+  for(const x of [-.3,.3]) add(geo('scGrip',()=>new THREE.CylinderGeometry(.045,.045,.12,8)),'#ff4f6d',sc,x,1.24,.43).rotation.z=Math.PI/2;
+  const fig=makeStudent({style:'pony',hair:'#1b1714',skin:'#f6cfa6',glasses:'round',gcol:'#141414',bottom:'shorts',stripe:true,socks:true,shoe:'white'});
+  fig.position.set(0,.15,-.08); fig.scale.setScalar(.95); g.add(fig);
+  fig.children[0].visible=false; // no figurine base while riding
+  const u=fig.userData; u.arms.forEach(a=>a.rotation.set(-1.15,0,0)); u.legs[0].rotation.x=-.12;
+  g.traverse(o=>{ if(o.isMesh){ o.userData.npc=true; pickables.push(o); } });
+  const pts=NPC_ROUTE.map(k=>NV(k));
+  npc={g,fig,wh,pts,i:0,pos:pts[0].clone(),wait:0,speed:3.6};
+  document.getElementById('npc').addEventListener('click',e=>{ if(e.target.closest('[data-close="npc"]')||e.target.id==='npc') document.getElementById('npc').hidden=true; });
+  g.position.copy(npc.pos);
+}
+function updateNPC(t,dt){
+  if(!npc) return; const n=npc;
+  if(n.wait>0){ n.wait-=dt; n.fig.userData.arms[1].rotation.set(0,0,2.5+Math.sin(t*9)*.3); return; }
+  n.fig.userData.arms[1].rotation.set(-1.15,0,0);
+  const tgt=n.pts[(n.i+1)%n.pts.length]; const d=tgt.clone().sub(n.g.position); d.y=0; const L=d.length(), st=n.speed*dt;
+  if(L<st){ n.g.position.copy(tgt); n.i=(n.i+1)%n.pts.length; if(Math.random()<.22) n.wait=rnd(1.5,3); }
+  else { n.g.position.addScaledVector(d,st/L); const yaw=Math.atan2(d.x,d.z); n.g.rotation.y+=(((yaw-n.g.rotation.y+Math.PI*3)%(Math.PI*2))-Math.PI)*Math.min(1,dt*6); n.wh.forEach(w=>w.rotation.x+=st/.11); n.g.position.y=Math.abs(Math.sin(t*14))*.02; }
+}
+function openNPC(){
+  const all=ST.done.length>=Q.length, n=ST.done.length;
+  $('#npcMsg').innerHTML= all
+    ? `<b>你已經集滿 ${Q.length} 枚金幣！</b><br>把這個畫面給中鼎文看，就可以換小禮物囉。`
+    : `<b>加油，集滿金幣可以找中鼎文換小禮物！</b><br>你現在有 ${n} 枚，還差 <b>${Q.length-n}</b> 枚。`;
+  $('#npcProof').hidden=!all;
+  if(all) $('#npcProof').innerHTML=`<span>兌換憑證</span><b>${esc(ST.name||'草商新生')}</b><small>金幣 ${n} / ${Q.length} · ${new Date().toLocaleString('zh-TW',{timeZone:'Asia/Taipei',hour12:false})}</small>`;
+  $('#npc').hidden=false;
+}
+
 /* =====================================================================
    FX: coin pop, confetti, building bounce, selection ring
    ===================================================================== */
@@ -1164,11 +1222,12 @@ const selRing=new THREE.Mesh(new THREE.RingGeometry(1,1.18,40).rotateX(-Math.PI/
 /* =====================================================================
    LABELS, PICKING, CAMERA
    ===================================================================== */
-const labelEls={}; let meEl=null;
+const labelEls={}; let meEl=null, npcEl=null;
 function buildLabels(){
   for(const q of Q){ if(!B[q.id]) continue; const b=document.createElement('button'); b.className='bl'; b.type='button'; b.setAttribute('aria-label',q.name+'，點選探索');
     b.innerHTML=`<span class="mk">!</span><span class="nm">${q.bld?`<small>${q.bld}</small>`:''}${q.name}</span>`; b.addEventListener('click',()=>select(q.id,true)); labelsEl.appendChild(b); labelEls[q.id]=b; }
   meEl=document.createElement('div'); meEl.className='me'; meEl.style.visibility='hidden'; labelsEl.appendChild(meEl);
+  npcEl=document.createElement('button'); npcEl.type='button'; npcEl.className='npcTag'; npcEl.innerHTML='<b>客服</b><span>中鼎文</span>'; npcEl.setAttribute('aria-label','客服 中鼎文：集滿金幣可以換小禮物'); npcEl.addEventListener('click',openNPC); labelsEl.appendChild(npcEl);
   for(const t of TAGS){ if(!t.world){ const [x,z]=T2W(t.x,t.z); t.x=x; t.z=z; t.world=true; } const el=document.createElement('div'); el.className='bt'+(t.gate?' gate':'')+(t.land?' land':'')+(t.road?' road':''); el.textContent=t.name; labelsEl.appendChild(el); t.el=el; }
 }
 function refreshLabels(){ for(const id in labelEls){ const d=isDone(id); labelEls[id].classList.toggle('done',d); labelEls[id].querySelector('.mk').textContent=d?'✓':'!'; } if(meEl) meEl.textContent=ST.name?ST.name:'你'; }
@@ -1178,6 +1237,7 @@ function updateLabels(){
   for(const id in labelEls){ const el=labelEls[id], b=B[id]; const [x,y,z]=project(b.c.x,b.top+.4,b.c.z); if(z>1){ el.style.visibility='hidden'; continue; } el.style.visibility='visible'; el.style.transform=`translate(${x}px,${y}px) translate(-50%,-100%)`; el.style.zIndex=String(1000-Math.round(z*900)); }
   const camD=controls?camera.position.distanceTo(controls.target):100;
   for(const t of TAGS){ const [x,y,z]=project(t.x,t.y,t.z); const show=z<1&&(t.gate||t.land||t.road||camD<90); t.el.style.visibility=show?'visible':'hidden'; if(show) t.el.style.transform=`translate(${x}px,${y}px) translate(-50%,-100%)`; }
+  if(npc&&npcEl){ const p=npc.g.position; const [x,y,z]=project(p.x,p.y+2.35,p.z); npcEl.style.visibility=z>1?'hidden':'visible'; npcEl.style.transform=`translate(${x}px,${y}px) translate(-50%,-100%)`; npcEl.style.zIndex=String(1100-Math.round(z*900)); }
   if(player&&meEl){ const p=player.mesh.position; const [x,y,z]=project(p.x,p.y+2.1,p.z); meEl.style.visibility=z>1?'hidden':'visible'; meEl.style.transform=`translate(${x}px,${y}px) translate(-50%,-100%)`; }
   for(const s of students){ if(!s.bubble) continue; const p=s.mesh.position; const [x,y,z]=project(p.x,p.y+1.5,p.z); s.bubble.style.visibility=z>1?'hidden':'visible'; s.bubble.style.transform=`translate(${x}px,${y}px) translate(-50%,-100%)`; }
 }
@@ -1193,9 +1253,9 @@ const ray=new THREE.Raycaster(), ndc=new THREE.Vector2(); let downAt=null;
 function rayAt(cx,cy,objs){ const r=canvas.getBoundingClientRect(); ndc.set(((cx-r.left)/r.width)*2-1,-((cy-r.top)/r.height)*2+1); ray.setFromCamera(ndc,camera); return ray.intersectObjects(objs,false)[0]; }
 canvas.addEventListener('pointerdown',e=>{ downAt=[e.clientX,e.clientY]; });
 canvas.addEventListener('pointerup',e=>{ if(!downAt||!started) return; const moved=Math.hypot(e.clientX-downAt[0],e.clientY-downAt[1]); downAt=null; if(moved>6) return;
-  const hit=rayAt(e.clientX,e.clientY,pickables); if(hit){ select(hit.object.userData.q,true); return; }
+  const hit=rayAt(e.clientX,e.clientY,pickables); if(hit){ if(hit.object.userData.npc){ openNPC(); return; } select(hit.object.userData.q,true); return; }
   const gh=rayAt(e.clientX,e.clientY,WGROUND?[ground,WGROUND]:[ground]); if(gh&&player){ walkPlayerTo(nearestNode(gh.point.x,gh.point.z)); } });
-let hq=false, hoverId=null; canvas.addEventListener('pointermove',e=>{ if(e.pointerType!=='mouse'||hq) return; hq=true; requestAnimationFrame(()=>{ hq=false; const h=rayAt(e.clientX,e.clientY,pickables); const id=h?h.object.userData.q:null; if(id!==hoverId){ if(hoverId&&labelEls[hoverId]) labelEls[hoverId].classList.remove('hov'); hoverId=id; canvas.style.cursor=id?'pointer':'grab'; } }); });
+let hq=false, hoverId=null; canvas.addEventListener('pointermove',e=>{ if(e.pointerType!=='mouse'||hq) return; hq=true; requestAnimationFrame(()=>{ hq=false; const h=rayAt(e.clientX,e.clientY,pickables); const id=h?(h.object.userData.npc?'npc':h.object.userData.q):null; if(id!==hoverId){ if(hoverId&&labelEls[hoverId]) labelEls[hoverId].classList.remove('hov'); hoverId=id; canvas.style.cursor=id?'pointer':'grab'; } }); });
 
 /* =====================================================================
    UI
@@ -1323,7 +1383,7 @@ function winGame(id){
   const q=QI[id]; const fresh=!isDone(id);
   const line=q.kind==='dept'?'你認識了這個科別！':'你發現了校園生活！';
   $('#gBody').innerHTML=`<div class="win"><div class="bigcoin">${q.short}</div><h3>${line}</h3><p>${fresh?`<b>${esc(q.name)}</b> 的印章蓋上護照了，獲得金幣一枚。`:'這枚金幣之前已經收過囉，再挑戰其他建築吧！'}</p><div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center"><button class="btn main" id="collect">${fresh?'收下金幣':'好的'}</button></div></div>`;
-  $('#collect').onclick=()=>{ $('#game').hidden=true; if(fresh){ ST.done.push(id); save(); flyCoin(); coinPop(id); refreshLabels(); renderTasks(); renderCard(); const dn=DEPTS.filter(d=>isDone(d.id)).length; if(q.kind==='dept'&&dn===DEPTS.length) setTimeout(()=>{ toast(`${DEPTS.length} 個科別都認識了！打開護照領取探索證書`); openPass(); },1600); } };
+  $('#collect').onclick=()=>{ $('#game').hidden=true; if(fresh){ ST.done.push(id); save(); if(ST.done.length===Q.length) setTimeout(()=>{ toast('金幣集滿了！去找騎滑板車的客服中鼎文換小禮物'); },2600); flyCoin(); coinPop(id); refreshLabels(); renderTasks(); renderCard(); const dn=DEPTS.filter(d=>isDone(d.id)).length; if(q.kind==='dept'&&dn===DEPTS.length) setTimeout(()=>{ toast(`${DEPTS.length} 個科別都認識了！打開護照領取探索證書`); openPass(); },1600); } };
 }
 function openIntro(id){
   const q=QI[id], I=DEPT_INTRO[id]; if(!I) return;
@@ -1404,13 +1464,13 @@ $('#coinBtn').addEventListener('click',openPass); $('#passBtn').addEventListener
 $('#homeBtn').addEventListener('click',()=>{ select(null); home(); });
 $('#taskBtn').addEventListener('click',()=>{ $('#tasks').classList.toggle('open'); if($('#tasks').classList.contains('open')) select(null); });
 $('#infoBtn').addEventListener('click',()=>{
-  $('#iBody').innerHTML=`<p><b>怎麼玩</b></p><ul><li>直接點建築（或上面的名牌）就能看科別介紹，不用走到門口；你的角色會自己走過去。</li><li>每棟建築都有一個小任務，完成後會顯示「你認識了這個科別！」並得到一枚金幣。</li><li>在科別卡片按「♡ 我有興趣」，十個科別都認識後，護照會發給你一張寫著你方向的「探索證書」。</li><li>拖曳可以轉動視角，捏合或滾輪可以縮放，點地面可以讓角色走過去。</li></ul>
+  $('#iBody').innerHTML=`<p><b>怎麼玩</b></p><ul><li>直接點建築（或上面的名牌）就能看科別介紹，不用走到門口；你的角色會自己走過去。</li><li>每棟建築都有一個小任務，完成後會顯示「你認識了這個科別！」並得到一枚金幣。</li><li>在科別卡片按「♡ 我有興趣」，十個科別都認識後，護照會發給你一張寫著你方向的「探索證書」。</li><li>看到頭上寫「客服」、騎滑板車的中鼎文就點她。集滿 13 枚金幣，可以找她換小禮物。</li><li>拖曳可以轉動視角，捏合或滾輪可以縮放，點地面可以讓角色走過去。</li></ul>
   <p><b>校園廣播</b></p><p>底部的廣播與同學頭上的對話框來自課程 Discord（由 TA Bot 推送到 <code>api/feed</code>）。目前狀態：${feedMode==='live'?'即時':'示範內容'}。</p>
   <p><b>資料來源</b></p><ul>${SOURCES.map(s=>`<li><a href="${s[1]}" target="_blank" rel="noopener">${esc(s[0])}</a></li>`).join('')}</ul>
   <p class="note">校園配置依「115 學年度全校平面圖」；北邊是中投快速道路，西邊是民房，正校門正對面是萊爾富、右手邊是南台灣土魠魚羹。誠工樓、誠教樓、藝升樓、誠學樓依實景照片做成三合院造型；比例為遊戲用的示意。校外商店以一般店面呈現。進度只存在這台裝置的瀏覽器裡。</p>`;
   $('#info').hidden=false; });
 $('#info').addEventListener('click',e=>{ if(e.target.closest('[data-close="info"]')||e.target.id==='info') $('#info').hidden=true; });
-addEventListener('keydown',e=>{ if(e.key!=='Escape') return; for(const id of ['lb','intro','game','pass','info']){ if(!$('#'+id).hidden){ if(id==='game') gameStop&&gameStop(); $('#'+id).hidden=true; return; } } select(null); });
+addEventListener('keydown',e=>{ if(e.key!=='Escape') return; for(const id of ['lb','npc','intro','game','pass','info']){ if(!$('#'+id).hidden){ if(id==='game') gameStop&&gameStop(); $('#'+id).hidden=true; return; } } select(null); });
 function toast(text){ const t=$('#toast'); t.innerHTML='<span class="coin"></span><span></span>'; t.lastChild.textContent=text; t.hidden=false; clearTimeout(toast.t); toast.t=setTimeout(()=>t.hidden=true,3200); }
 
 /* =====================================================================
@@ -1449,7 +1509,7 @@ function frame(){
   const dt=Math.min(.05,clock.getDelta()); T+=dt*(reduceMotion?.4:1);
   for(const f of anim) f(T,dt);
   for(let i=fx.length-1;i>=0;i--) if(!fx[i](dt)) fx.splice(i,1);
-  updateWalkers(T,dt);
+  updateWalkers(T,dt); updateNPC(T,dt);
   if(selRing.visible) selRing.material.opacity=.55+.4*Math.sin(T*4);
   if(fly){ fly.k+=dt/fly.dur; const k=Math.min(1,fly.k); const e=k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2; camera.position.lerpVectors(fly.p0,fly.p1,e); controls.target.lerpVectors(fly.t0,fly.t1,e); if(k>=1) fly=null; }
   controls&&controls.update();
@@ -1457,7 +1517,7 @@ function frame(){
 }
 try{ await Promise.race([document.fonts.load('48px Huninn'),new Promise(r=>setTimeout(r,1500))]); }catch(e){}
 buildCampus(); buildLabels(); refreshLabels(); renderTasks(); renderAvatars();
-for(const h of HOMES) addStudent(h); for(let i=0;i<4;i++) addStudent(pick(Object.keys(N).filter(k=>!(k in WNODE))));
+makeNPC(); for(const h of HOMES) addStudent(h); for(let i=0;i<4;i++) addStudent(pick(Object.keys(N).filter(k=>!(k in WNODE))));
 startDemo(); poll();
 if(renderer){ new ResizeObserver(resize).observe(canvas); resize(); if(canvas.clientWidth<760) camera.position.set(-10,190,205); if(controls){ controls.autoRotate=!reduceMotion; controls.autoRotateSpeed=.5; } requestAnimationFrame(frame); }
 </script>
