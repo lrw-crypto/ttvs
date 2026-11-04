@@ -270,6 +270,107 @@ figcaption{font-size:12px;color:var(--muted);line-height:1.45}
 #lb .x{position:fixed;right:max(16px,env(safe-area-inset-right,0px));top:calc(16px + env(safe-area-inset-top,0px));background:rgba(255,255,255,.2);color:#fff;border-color:rgba(255,255,255,.5)}
 @media (max-width:760px){ .grades{grid-template-columns:1fr} .gcol{flex-direction:row;flex-wrap:wrap;align-items:center} .gcol b{width:100%} .phs.three,.awards{grid-template-columns:1fr} #lb{place-items:center} }
 
+/* 商經科「LEVEL UP」pop-art skin, taken from the department's slides */
+.pop{--k:#141414;border:3px solid var(--k);border-radius:10px;box-shadow:4px 4px 0 var(--k);background:#fff;color:var(--k);padding:10px 12px;min-width:0}
+.pc-y{background:#ffe02e}.pc-c{background:#3ee0f2}.pc-m{background:#ff4fc0}.pc-k{background:#141414;color:#fff}
+.pop b{font-weight:900;display:block}
+.pop small{font-weight:700}
+.popMini{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;background:#ff2fb3;color:#fff;transform:rotate(-1deg)}
+.popMini b{font-family:var(--f-num);font-size:22px;letter-spacing:.04em;display:inline}
+.popMini span{font-weight:900;font-size:15px}
+.popBadge{align-self:flex-start;background:#141414;color:#ffe02e;font-weight:900;font-size:12.5px;padding:5px 12px;border-radius:999px}
+.popRooms{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.popRooms .pop{display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px;padding:8px 6px}
+.popRooms img{width:64px;height:auto}
+.popRooms b{font-size:12.5px;line-height:1.3}
+.popRooms small{font-size:11.5px}
+#intro.popTheme>.panel{background:#fbf8ef;color:#141414;background-image:radial-gradient(rgba(20,20,20,.07) 1px,transparent 1.2px);background-size:9px 9px}
+#intro.popTheme #inHead{background:#ff2fb3!important;border-bottom:3px solid #141414}
+#intro.popTheme .inNav button{background:#ffe02e;color:#141414;border:2px solid #141414}
+#intro.popTheme #inBody h3{font-family:var(--f-num),var(--f-body);font-weight:900;font-size:19px;background:#141414;color:#fff;align-self:flex-start;display:inline-flex;padding:4px 14px;border-radius:6px;transform:skew(-6deg)}
+#intro.popTheme #inBody h3::before{display:none}
+#intro.popTheme #inBody h4{font-size:16px;font-weight:900;margin:18px 0 8px}
+#intro.popTheme .chips span{background:#fff;border:2px solid #141414;color:#141414;font-weight:700}
+#intro.popTheme .chips.big span{font-size:13.5px}
+#intro.popTheme figcaption{color:#4a4440}
+.popHero{position:relative;border:3px solid #141414;border-radius:14px;box-shadow:6px 6px 0 #141414;background:#fffdf6;padding:22px 18px 18px;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;overflow:hidden}
+.popHero::before,.popHero::after{content:"";position:absolute;width:70px;height:70px;border:12px solid #3ee0f2;border-radius:50%;left:-24px;top:-24px}
+.popHero::after{border-color:#ffe02e;left:auto;right:-20px;top:auto;bottom:-26px}
+.popHero b{font-family:var(--f-num);font-size:clamp(30px,6vw,44px);letter-spacing:.04em;background:#ff2fb3;color:#fff;border:3px solid #141414;box-shadow:5px 5px 0 #141414;padding:2px 18px;border-radius:10px;transform:rotate(-2deg);position:relative}
+.popHero strong{font-size:clamp(20px,4vw,26px);font-weight:900}
+.popHero span{background:#3ee0f2;border:2px solid #141414;padding:3px 12px;font-weight:900;font-size:13.5px;border-radius:6px}
+.popLoad{width:min(320px,100%);height:14px;border:2px solid #141414;border-radius:8px;position:relative;background:#fff;margin-top:6px}
+.popLoad i{position:absolute;inset:2px;border-radius:5px;background:repeating-linear-gradient(45deg,#ffe02e 0 8px,#ff2fb3 8px 16px)}
+.popLoad em{position:absolute;left:0;right:0;top:16px;font-style:normal;font-size:11px;font-weight:700}
+.popPower{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:4px}
+.popPower .pop{flex:1 1 140px}
+.popPower .pc-k small{display:block;margin-top:2px;font-size:12px;color:#ffe02e}
+.popPlus{font-weight:900;font-size:22px;color:#141414}
+.popNote{margin:8px 0 0;font-size:13.5px;font-weight:700;color:#141414}
+.popTeam{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.popTeam figure{border:3px solid #141414;border-radius:10px;overflow:hidden;background:#fff;box-shadow:3px 3px 0 #141414;gap:0}
+.popTeam img{display:block;width:100%;height:auto;aspect-ratio:1}
+.popTeam figcaption{text-align:center;font-weight:900;font-size:13px;color:#141414!important;padding:5px 2px;background:#fff}
+.popTeam figure:first-child figcaption{background:#ffe02e}
+.popOffice{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:center;margin-bottom:12px}
+.popOffice p{margin:4px 0 0;font-size:13px}
+.popOffice ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:5px}
+.popOffice li{border:2px solid #141414;border-radius:6px;padding:4px 8px;font-size:12.5px;font-weight:700;background:#fff}
+.popPin{display:inline-block;background:#ff2fb3;color:#fff;border:2px solid #141414;border-radius:999px;padding:1px 10px;font-weight:900;font-size:12.5px;margin-bottom:4px}
+.popRoom{display:grid;grid-template-columns:minmax(0,180px) 1fr;gap:12px;margin-top:12px;align-items:start}
+.popRoom>.pop{display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px}
+.popRoom>.pop img{width:90px;height:auto}
+.popRoom>.pop em{font-style:normal;font-size:12px;font-weight:900;background:#141414;color:#ffe02e;border-radius:6px;padding:3px 6px;margin-top:4px}
+.popRoom .phs{margin-top:0}
+.popPath{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;position:relative}
+.popPath li{border:3px solid #141414;border-radius:10px;box-shadow:4px 4px 0 #141414;padding:10px;text-align:center;position:relative;color:#141414}
+.popPath li:not(:last-child)::after{content:"";position:absolute;right:-22px;top:50%;width:22px;height:4px;background:#141414}
+.popPath li b{font-size:14px}
+.popPath li span{font-weight:700;font-size:13px}
+.popSplit{display:grid;grid-template-columns:1.3fr 1fr;gap:12px;align-items:start}
+.popQuest small{font-size:11px;letter-spacing:.12em}
+.popQuest p{margin:6px 0 0;font-size:13.5px;line-height:1.5}
+.popQuest p b{display:inline;margin-right:6px}
+.popTree{display:grid;grid-template-columns:1fr 1.2fr 1fr;gap:10px;align-items:start}
+.popTree .pop{display:flex;flex-direction:column;gap:5px}
+.popTree .pop b{font-size:15px}
+.popTree .pop b small{font-size:11.5px;margin-left:4px;display:inline}
+.popTree .pop span{background:#fff;border:2px solid #141414;border-radius:6px;padding:3px 7px;font-size:12.5px;font-weight:700}
+.popGoal{margin:10px 0 0;background:#141414;color:#fff;border-radius:8px;padding:8px 12px;font-weight:700;font-size:13.5px}
+.popTarget{border:4px solid #141414;border-radius:50%;aspect-ratio:1;max-width:190px;width:100%;justify-self:center;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(circle,#ff2fb3 0 26%,#fff 27% 44%,#3ee0f2 45% 62%,#fff 63%);text-align:center;gap:4px;box-shadow:4px 4px 0 #141414}
+.popTarget b{background:#ffe02e;border:2px solid #141414;border-radius:6px;padding:2px 8px;font-size:13px}
+.popWall{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:12px;align-items:center}
+.popWall img{width:100%;height:auto}
+.popWall>div{display:flex;flex-direction:column;gap:10px}
+.popWall .pop span{display:block;font-size:13.5px;font-weight:700;margin-top:3px}
+.popWall .pop span::before{content:"✓ "}
+.popWorld{display:grid;grid-template-columns:minmax(0,200px) 1fr;gap:12px;margin-top:12px;align-items:start}
+.popWorld .pop p{margin:6px 0;font-size:13px}
+.popWorld .pop em{font-style:normal;display:block;background:#141414;color:#fff;border-radius:6px;padding:5px 8px;font-size:12.5px;font-weight:700}
+.popWorld .pop b small{display:inline;font-size:12px}
+.phs.four{grid-template-columns:repeat(4,minmax(0,1fr))}
+.phs.four .ph img{aspect-ratio:3/4;object-fit:cover;max-height:none}
+.popRoutes{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.popRoutes .pop b{font-size:17px}
+.popRoutes .pop b small{display:inline;font-size:12px;margin-left:4px}
+.popRoutes .pop p{margin:6px 0;font-size:13.5px;font-weight:700}
+.popRadar{display:grid;grid-template-columns:minmax(0,1.2fr) 1fr;gap:12px;align-items:center}
+.radar{width:100%;height:auto;background:#fff;border:3px solid #141414;border-radius:12px}
+.popRadar p{margin:4px 0;font-size:13.5px;font-weight:700;display:flex;align-items:center;gap:8px}
+.sw{display:inline-block;width:18px;height:14px;border:2px solid #141414}.sw.y{background:#ffe02e}.sw.g{background:#d6d1ca;border-style:dashed}
+.popLetter{display:grid;grid-template-columns:minmax(0,150px) 1fr;gap:14px;align-items:end;margin-top:14px;background:#fff}
+.popLetter img{width:100%;height:auto}
+.popLetter b{font-size:17px;background:#3ee0f2;border:2px solid #141414;border-radius:6px;padding:3px 10px;display:inline-block;margin-bottom:6px}
+.popLetter p{margin:4px 0;font-size:14px;line-height:1.6}
+@media (max-width:760px){
+  .popRooms,.popPath,.popTree,.popSplit,.popWall,.popRoutes,.popRadar,.popOffice{grid-template-columns:1fr}
+  .popPath li:not(:last-child)::after{right:50%;top:auto;bottom:-22px;width:4px;height:22px}
+  .popTeam{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .popRoom,.popWorld{grid-template-columns:1fr}
+  .phs.four,.popWorld .phs.three,.popRoom .phs{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .popLetter{grid-template-columns:90px 1fr}
+}
+
 /* passport */
 #pass .panel{width:min(620px,100%)}
 #pass .ovHead{background:linear-gradient(135deg,#7b2f3a,#a24a4f);color:#fff;border-radius:20px 20px 0 0}
@@ -395,8 +496,8 @@ const Q=[
   {id:'tower',kind:'spot',name:'誠愛樓',short:'愛',color:'#22b2c9',group:'校園地標',bld:'圖書館・合作社',
    blurb:'中央草坪西端的地標：玻璃帷幕和五樓天台的玻璃金字塔，從空拍照裡一眼就認得出來。裡面有圖書館、合作社和資料研究室。',game:'tower'},
   {id:'biz',bld:'藝升樓',kind:'dept',name:'商業經營科',short:'商',color:'#e5576b',group:'商業與管理群',classes:'每年級 4 班',
-   blurb:'全校班級最多的科。從門市服務、行銷企劃練到電子商務，學會讓一家店動起來。',
-   focus:['商業概論','門市服務','行銷實務','電子商務','商業簡報','數位科技應用'],certs:[['門市服務','丙'],['門市服務','乙'],['會計事務－人工記帳','丙'],['電腦軟體應用','丙']],game:'biz'},
+   blurb:'商業經營管理加上會計資訊處理，再練數位行銷與門市營運，三年從新手村升級成全方位商業人才。',
+   focus:['商業概論','會計學','門市服務實務','行銷實務','會計軟體應用','資料彙整與分析','金融與證券投資實務','專題實作'],certs:[['門市服務','丙'],['會計事務－資訊','丙'],['電腦軟體應用','丙'],['會計事務－資訊','乙'],['電腦軟體應用','乙'],['商業管理能力檢定 三級','民'],['商業管理能力檢定 二級','民']],game:'biz'},
   {id:'acct',bld:'藝升樓',kind:'dept',name:'會計事務科',short:'會',color:'#8a6bc8',group:'商業與管理群',classes:'每年級 2 班',
    blurb:'借方等於貸方的藝術：記帳、成本、稅務和會計資訊系統，幫企業把錢算清楚。',
    focus:['會計學','成本會計','會計資訊','稅務實務','經濟學','財務報表分析'],certs:[['會計事務－人工記帳','丙'],['會計事務－資訊','丙'],['會計事務','乙']],game:'acct'},
@@ -457,6 +558,76 @@ const DEPT_INTRO={
     jobs:['電腦相關科技業','程式設計','網頁設計師','電子商務']
   }
 };
+/* 商業經營科簡介（取自科內簡報「商業經營科巡禮」，LEVEL UP 遊戲風格） */
+DEPT_INTRO.biz={ src:'商業經營科巡禮簡報', dir:'media/biz/', theme:'pop',
+  teachers:['科主任 智馨','淑娟','秀玲','易凡','偉信','貞蓮','瑩純','瑋菁','雅琪','佩凰','榆棓','振園'],
+  powers:[['商業經營管理＆會計資訊處理','y'],['數位行銷','c'],['門市營運能力','m']],
+  office:{where:'藝升樓 2F',who:'科主任、商經科教師辦公室（有困難找這裡就對了！）',unlock:['【課程學習】學習諮詢與輔導','【專業教室】位置指引','【後勤支援】各項行政支援']},
+  rooms:[{name:'金融科技創新教室',floor:'藝升樓 2F',icon:'icon-fintech.png',col:'c',photos:[['room-fintech-1.jpg','金融科技創新教室',820,499],['room-fintech-2.jpg','金融科技創新教室',820,547]]},
+         {name:'門市服務檢定・清潔／收銀教室',floor:'藝升樓 4F',icon:'icon-store.png',col:'y',badge:'全南投唯一 門市服務丙級檢定合格場地',photos:[['room-store-1.jpg','門市服務檢定教室',820,547],['room-store-2.jpg','清潔／收銀教室',820,547]]},
+         {name:'多元行銷教室',floor:'藝升樓 4F',icon:'icon-mkt.png',col:'m',photos:[['room-mkt-1.jpg','多元行銷教室',820,615],['room-mkt-2.jpg','多元行銷教室',820,615]]}],
+  levels:[['高一 LEVEL 1','奠定基礎'],['高二 LEVEL 2','專業進階'],['高三 LEVEL 3','整合實務與升學']],
+  l1:{courses:['商業概論','會計學','數位科技概論','門市服務實務','記帳實務'],quests:[['核心任務 1','適應高職學習節奏！'],['核心任務 2','取得高職人生首張商業證照【門市服務丙級】']]},
+  l2:{must:['經濟學','會計學','數位科技應用','行銷實務','會計軟體應用','會計實務','資料彙整與分析','專題實作'],
+      fin:['小資理財課','股神巴菲特的財報分析','巴菲特都推薦的指數型投資法','財會軟體應用'],
+      mkt:['商業簡報實務','商業攝影','從影片學商業'],goal:'參與跨領域選修，準備專業技能檢定，確定未來的升學／就業志向！'},
+  l3:{courses:['商業溝通','金融與證券投資實務','會計資訊分析與應用','經濟實務','計算機應用'],elective:['企業管理實務','商業經營實務'],goal:['備戰 四技二專統測','衝刺 理想科大']},
+  certWall:[['乙級證照','y',['會計事務（資訊項）乙級','電腦軟體應用乙級']],['商業管理能力檢定','c',['商業管理能力檢定 二級','商業管理能力檢定 三級']],['丙級證照','m',['會計事務（資訊項）丙級','門市服務丙級','電腦軟體應用丙級']]],
+  world:[{t:'實戰競技場',s:'校外競賽',d:'鼓勵課堂所學轉化為實務專題',hl:'全國商業專題與創新創業競賽爭取佳績！',col:'y',
+          photos:[['comp-1.jpg','2026 第六屆全國會計師盃「會計分析達人」個案簡報競賽 優勝',860,573],['comp-2.jpg','2025 全國賣吶炬達人創新行銷競賽 高中職組 第二名',860,645],['comp-3.jpg','第 5 屆高科盃 全國商業智慧競賽 第一名',860,575]]},
+         {t:'職場探索',s:'校外參訪',d:'提早接觸職場實際運作',hl:'洲際棒球場、漢神洲際、中友百貨',col:'c',
+          photos:[['visit-1.jpg','職場參訪：臺中洲際棒球場',860,574],['visit-2.jpg','職場參訪活動大合照',860,645],['visit-3.jpg','參觀洲際棒球場看台',860,645]]},
+         {t:'職場登入',s:'校外實習',d:'專業所學與實務精準接軌',hl:'服務業實戰（便利超商、咖啡廳）',col:'m',
+          photos:[['intern-01.jpg','校外實習：便利超商',480,640],['intern-02.jpg','校外實習：便利超商',480,640],['intern-03.jpg','校外實習：便利超商',640,480],['intern-04.jpg','校外實習：咖啡廳',480,640],['intern-05.jpg','校外實習：咖啡廳',480,640],['intern-06.jpg','校外實習：咖啡廳',640,480],['intern-07.jpg','校外實習：咖啡廳',466,640],['intern-08.jpg','校外實習：咖啡廳',640,481],['intern-09.jpg','校外實習：便利超商',480,640],['intern-10.jpg','校外實習：便利超商',480,640],['intern-11.jpg','校外實習：咖啡廳',480,640],['intern-12.jpg','校外實習：咖啡廳',640,446]]}],
+  routes:{study:{sub:'商業與管理群',ways:['四技二專統測','繁星推薦','技優甄審','特殊選才','申請入學'],to:['商業經營系','企業管理系','行銷與流通管理系','會計資訊系','財務金融系']},
+          work:{sub:'職場實力派',jobs:['企業行政／會計助理','門市營運幹部／店長','數位行銷企劃','金融機構人員']}},
+  radar:['商業經營管理','會計資訊處理','數位行銷策劃','門市營運實務','黃金證照力','實務戰鬥經驗'],
+  letter:['歡迎你／妳成為草商【商經科】的一員','高職三年是探索自我與累積專業關鍵時期','保持好學態度','按部就班，跟隨老師步調','你／妳將在【商經科】收穫','專業技能、自信與美好的高中生活','【商業經營科】準備好與你一起大展身手！']
+};
+function popImg(I,f,alt,w,h){ return `<button class="ph" data-lb="${I.dir+f}" data-cap="${esc(alt)}"><img src="${I.dir+f}" alt="${esc(alt)}" width="${w}" height="${h}" loading="lazy"></button>`; }
+function bizCard(q,I){
+  return `<div class="pop popMini"><b>LEVEL UP!</b><span>你的商管超能力</span></div>
+  <div class="popBadge">全南投唯一 門市服務丙級檢定合格場地</div>
+  <section class="sec"><h3>三大專業教室</h3><div class="popRooms">${I.rooms.map(r=>`<div class="pop pc-${r.col}"><img src="${I.dir+r.icon}" alt="" width="286" height="280" loading="lazy"><b>${esc(r.name)}</b><small>${esc(r.floor)}</small></div>`).join('')}</div></section>
+  <section class="sec"><h3>三年 LEVEL UP</h3><div class="grades">${[I.l1.courses,I.l2.must.slice(0,5),I.l3.courses].map((l,i)=>`<div class="gcol g${i}"><b>${['LEVEL 1 高一','LEVEL 2 高二','LEVEL 3 高三'][i]}</b>${l.map(c=>`<span>${esc(c)}</span>`).join('')}</div>`).join('')}</div></section>
+  <section class="sec"><h3>可以考取的證照</h3><ul class="certs">${q.certs.map(c=>`<li><span>${esc(c[0])}</span><span class="lv ${LV[c[1]][1]}">${LV[c[1]][0]}</span></li>`).join('')}</ul></section>
+  <section class="sec"><h3>走出教室的實戰歷練</h3><div class="chips">${I.world.map(w=>`<span>${esc(w.t)}（${esc(w.s)}）</span>`).join('')}</div><div class="phs three">${I.world.map(w=>popImg(I,...w.photos[0])).join('')}</div></section>
+  <button class="btn go" id="introBtn" style="width:100%">看商經科完整介紹</button>
+  <p class="note">內容取自${esc(I.src)}。</p>`;
+}
+function radarSVG(axes){
+  const cx=190,cy=150,R=100, pt=(i,r)=>{ const a=-Math.PI/2+i*Math.PI*2/axes.length; return [cx+Math.cos(a)*R*r,cy+Math.sin(a)*R*r]; };
+  const poly=r=>axes.map((_,i)=>pt(i,r).map(v=>v.toFixed(1)).join(',')).join(' ');
+  return `<svg class="radar" viewBox="0 0 380 300" role="img" aria-label="三年後的你：六項能力從新手成長到滿級（示意）">
+    ${[.25,.5,.75,1].map(r=>`<polygon points="${poly(r)}" fill="none" stroke="#c9c2b8" stroke-width="1"/>`).join('')}
+    ${axes.map((_,i)=>{ const [x,y]=pt(i,1); return `<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="#c9c2b8"/>`; }).join('')}
+    <polygon points="${poly(.98)}" fill="#ffe02e" fill-opacity=".85" stroke="#141414" stroke-width="2.5"/>
+    <polygon points="${poly(.3)}" fill="#d6d1ca" stroke="#8a8580" stroke-width="1.5" stroke-dasharray="4 3"/>
+    ${axes.map((a,i)=>{ const [x,y]=pt(i,1.2); return `<text x="${x.toFixed(1)}" y="${(y+4).toFixed(1)}" text-anchor="middle" font-size="12.5" font-weight="700" fill="#141414">${esc(a)}</text>`; }).join('')}
+  </svg>`;
+}
+function bizIntro(q,I){
+  const fig=p=>`<figure>${popImg(I,...p)}<figcaption>${esc(p[1])}</figcaption></figure>`;
+  const ul=(l)=>l.map(c=>`<span>${esc(c)}</span>`).join('');
+  return [
+    ['bz-start','新手登入',`<div class="popHero"><b>LEVEL UP!</b><strong>你的商管超能力</strong><span>國立草屯商工 商業經營科 — 新手登入指南</span><div class="popLoad"><i></i><em>Loading... 100%</em></div></div>
+      <h4>創造你的「專屬即戰力」</h4><div class="popPower">${I.powers.map(([t,c])=>`<div class="pop pc-${c}"><b>${esc(t)}</b></div>`).join('<span class="popPlus">＋</span>')}<span class="popPlus">＝</span><div class="pop pc-k"><b>全方位商業人才</b><small>具備職場即戰力，升學與就業彈性無限大！</small></div></div>
+      <p class="popNote">學習領域廣泛，為你的未來解鎖最多可能性！</p>`],
+    ['bz-team','商經科師資',`<div class="popTeam">${I.teachers.map((t,i)=>`<figure><img src="${I.dir}teacher-${String(i+1).padStart(2,'0')}.jpg" alt="${esc(t)} 老師" width="260" height="260" loading="lazy"><figcaption>${esc(t)} 老師</figcaption></figure>`).join('')}</div>`],
+    ['bz-room','科辦公室與專業教室',`<div class="pop popOffice"><div><span class="popPin">${esc(I.office.where)}</span><b>商經科辦公室</b><p>${esc(I.office.who)}</p></div><ul>${I.office.unlock.map(u=>`<li>${esc(u)}</li>`).join('')}</ul></div>
+      ${I.rooms.map(r=>`<div class="popRoom"><div class="pop pc-${r.col}"><img src="${I.dir+r.icon}" alt="" width="286" height="280" loading="lazy"><b>${esc(r.name)}</b><small>${esc(r.floor)}</small>${r.badge?`<em>${esc(r.badge)}</em>`:''}</div><div class="phs">${r.photos.map(fig).join('')}</div></div>`).join('')}`],
+    ['bz-map','LEVEL UP 藍圖',`<ol class="popPath">${I.levels.map(([a,b],i)=>`<li class="pc-${'cym'[i]}"><b>【${esc(a)}】</b><span>${esc(b)}</span></li>`).join('')}</ol><p class="popNote">從新手村到專業大師，跟著【商業經營科】穩紮穩打！</p>
+      <h4>LEVEL 1（高一）：打好底子，拿首殺！</h4><div class="popSplit"><div class="chips big">${ul(I.l1.courses)}</div><div class="pop pc-y popQuest"><small>CURRENT OBJECTIVE</small>${I.l1.quests.map(([a,b])=>`<p><b>${esc(a)}</b>${esc(b)}</p>`).join('')}</div></div>
+      <h4>LEVEL 2（高二）：點亮你的專屬技能樹</h4><div class="popTree"><div class="pop pc-y"><b>財經大師<small>（選修）</small></b>${ul(I.l2.fin)}</div><div class="pop pc-c"><b>專業深化<small>（必修）</small></b>${ul(I.l2.must)}</div><div class="pop pc-m"><b>行銷與多媒體<small>（選修）</small></b>${ul(I.l2.mkt)}</div></div><p class="popGoal">任務目標：${esc(I.l2.goal)}</p>
+      <h4>LEVEL 3（高三）：終極武器裝備與最終決戰</h4><div class="popSplit"><div><div class="chips big">${ul(I.l3.courses)}</div><p class="popNote">多元選修：${I.l3.elective.map(esc).join('、')}</p></div><div class="popTarget"><b>${esc(I.l3.goal[0])}</b><b>${esc(I.l3.goal[1])}</b></div></div>`],
+    ['bz-cert','成就解鎖牆',`<p class="popNote">一人多照：透過課堂與輔導課，協助你打怪練等，考取滿滿技能證照。</p><div class="popWall"><img src="${I.dir}achieve.png" alt="" width="640" height="468" loading="lazy"><div>${I.certWall.map(([t,c,l])=>`<div class="pop pc-${c}"><b>${esc(t)}</b>${l.map(x=>`<span>${esc(x)}</span>`).join('')}</div>`).join('')}</div></div>`],
+    ['bz-world','走出教室',I.world.map(w=>`<div class="popWorld"><div class="pop pc-${w.col}"><b>${esc(w.t)}<small>（${esc(w.s)}）</small></b><p>${esc(w.d)}</p><em>${esc(w.hl)}</em></div><div class="phs ${w.photos.length>3?'four':'three'}">${w.photos.map(fig).join('')}</div></div>`).join('')],
+    ['bz-route','未來航線',`<div class="popRoutes"><div class="pop pc-c"><b>升學進路<small>（${esc(I.routes.study.sub)}）</small></b><p>${I.routes.study.ways.map(esc).join('／')}</p><div class="chips">${ul(I.routes.study.to)}</div></div><div class="pop pc-m"><b>就業進路<small>（${esc(I.routes.work.sub)}）</small></b><div class="chips">${ul(I.routes.work.jobs)}</div></div></div>`],
+    ['bz-you','三年後的你',`<div class="popRadar">${radarSVG(I.radar)}<div><p><i class="sw y"></i>三年後的你（Level Max 商管達人）</p><p><i class="sw g"></i>剛登入的你（Level 1 新手）</p><p class="popNote">所有的課程、證照與活動，都在為你累積不可取代的綜合實力！（圖為示意）</p></div></div>
+      <div class="pop popLetter"><img src="${I.dir}letter.png" alt="" width="344" height="420" loading="lazy"><div><b>來自新手村 村長的信</b>${I.letter.map(l=>`<p>${esc(l)}</p>`).join('')}</div></div>`]
+  ];
+}
+
 const HONORS=[
   {dept:'mech',text:'2026 年 5 月：機械科兩位應屆畢業生各取得 3 張乙級技術士證，並在全國技能競賽分區賽拿下 CNC 車床金牌、銀牌。',src:'https://news.ltn.com.tw/amp/news/life/breakingnews/5453077'},
   {dept:'mech',text:'機械科「電腦輔助機械製圖技藝團隊」多年培訓全國技能競賽選手。',src:'https://www.unews.com.tw/News/Info/1802'},
@@ -1343,6 +1514,8 @@ function renderCard(){
     <section class="sec"><h3>學校願景</h3><p class="note" style="color:var(--ink);font-size:13.5px">${esc(SCHOOL.vision)}</p></section>
     <section class="sec"><h3>草商學生圖像</h3><div class="chips">${SCHOOL.portrait.map(p=>`<span>${p}</span>`).join('')}</div></section>
     <section class="sec"><h3>榮譽榜</h3><div class="honor">${HONORS.map(h=>`<div>${esc(h.text)} <a href="${h.src}" target="_blank" rel="noopener">來源</a></div>`).join('')}</div></section>`;
+  } else if(DEPT_INTRO[q.id]?.theme==='pop'){
+    body+=bizCard(q,DEPT_INTRO[q.id]);
   } else if(DEPT_INTRO[q.id]){
     const I=DEPT_INTRO[q.id], img=(f,alt,w,h)=>`<button class="ph" data-lb="${I.dir+f}" data-cap="${esc(alt)}"><img src="${I.dir+f}" alt="${esc(alt)}" width="${w}" height="${h}" loading="lazy"></button>`;
     body+=`<section class="sec"><h3>升學與就業</h3><div class="stat2">${I.stats.map(([n,l])=>`<div><b class="num">${n}</b><small>${esc(l)}</small></div>`).join('')}</div></section>
@@ -1450,7 +1623,8 @@ function openIntro(id){
   const q=QI[id], I=DEPT_INTRO[id]; if(!I) return;
   const img=(f,alt,w,h)=>`<button class="ph" data-lb="${I.dir+f}" data-cap="${esc(alt)}"><img src="${I.dir+f}" alt="${esc(alt)}" width="${w}" height="${h}" loading="lazy"></button>`;
   const fig=p=>`<figure>${img(...p)}<figcaption>${esc(p[1])}</figcaption></figure>`;
-  const secs=[
+  const pop=I.theme==='pop'; $('#intro').classList.toggle('popTheme',pop);
+  const secs=pop?bizIntro(q,I):[
     ['in-course','專業課程',`<div class="grades big">${I.courses.map(([g,l],i)=>`<div class="gcol g${i}"><b>${g}</b>${l.map(c=>`<span>${esc(c)}</span>`).join('')}</div>`).join('')}</div>`],
     ['in-proj','專題實作',`<div class="chips">${I.projects.topics.map(t=>`<span>${esc(t)}</span>`).join('')}</div><div class="phs">${I.projects.photos.map(fig).join('')}</div>`],
     ['in-cert','相關技能檢定',`<div class="grades big">${I.certs.map(([g,l],i)=>`<div class="gcol g${i}"><b>${g}</b>${l.map(c=>`<span>${esc(c)}</span>`).join('')}</div>`).join('')}</div>`],
