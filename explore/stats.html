@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>草商探索趣 完成人數</title>
-<!-- 與 index.html 相同：部署 api/redeem.js 後把網址填在 content；留空時用同網站的 api/redeem -->
+<!-- 與 index.html 相同：把 Google Apps Script 網頁應用程式的網址（…/exec）填在 content -->
 <meta name="caotun-redeem-api" content="">
 <style>
 :root{--bg:#fbf6ee;--card:#fff;--ink:#3d3040;--muted:#8a7a80;--line:#f0dcc6;--coin:#ffc531;--bar:#ff6f5e;color-scheme:light}
@@ -52,7 +52,7 @@ async function load(){
     const days=Object.entries(j.daily||{}); const max=Math.max(1,...days.map(d=>d[1]));
     $('bars').innerHTML=days.length?days.map(([d,n])=>`<div class="bar"><em>${n}</em><i style="height:${Math.round(n/max*120)}px"></i><span>${d.slice(5).replace('-','/')}</span></div>`).join(''):'<p class="note">還沒有人完成。</p>';
     $('when').textContent='更新時間：'+new Date().toLocaleString('zh-TW',{timeZone:'Asia/Taipei',hour12:false});
-  }catch(e){ $('err').textContent='讀不到統計資料：'+e.message+'。請確認 api/redeem 已部署，並在這個檔案開頭填好 API 網址。'; $('err').hidden=false; $('when').textContent=''; }
+  }catch(e){ $('err').textContent='讀不到統計資料：'+e.message+'。請確認 Google Apps Script 已部署成網頁應用程式（存取權：所有人），並在這個檔案開頭填好 /exec 網址。'; $('err').hidden=false; $('when').textContent=''; }
 }
 $('reload').onclick=load; load();
 </script>

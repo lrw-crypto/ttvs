@@ -72,7 +72,7 @@
 
 ## 小禮物名額（前 50 名）
 
-集滿 13 枚金幣後，網頁會向 `api/redeem` 領一個號碼（`api/redeem.js`，Vercel + Upstash，與 TA Bot 動態共用同一組 Upstash 環境變數）。前 50 位拿到「第 N 位」兌換憑證；名額用完後，點客服中鼎文會顯示「謝謝探索！獎品已經兌換完畢」。
+集滿 13 枚金幣後，網頁會向名額 API 領一個號碼（建議用 Google Apps Script，設定見「完成人數統計」；`api/redeem.js` 是 Vercel 替代版）。前 50 位拿到「第 N 位」兌換憑證；名額用完後，點客服中鼎文會顯示「謝謝探索！獎品已經兌換完畢」。
 
 - 同一個瀏覽器重開或重整都拿回同一個號碼；同一 IP 一天最多領 3 個號碼。
 - 名額數用環境變數 `PRIZE_LIMIT` 調整（預設 50）。
@@ -81,28 +81,18 @@
 - 連不到 API 時，憑證照常顯示，並註明名額以中鼎文現場確認為準。
 - 進度存在學生自己的瀏覽器，懂技術的人可以偽造金幣或用不同瀏覽器多領；名額是方便管理，不是防作弊機制，現場兌換時仍請中鼎文核對號碼。
 
-## 完成人數統計
+## 完成人數統計（Google Apps Script）
 
-`api/redeem.js` 也會記錄每個集滿 13 枚金幣的瀏覽器（名額用完後仍繼續統計）。打開 `stats.html` 可以看累計完成人數、今天新增、已發出／剩餘小禮物名額與近 30 天每日人數；直接在瀏覽器開 `https://你的專案.vercel.app/api/redeem` 也能看到同樣的 JSON。一個瀏覽器只算一次，換手機或清除瀏覽器資料會被算成新的一位。
+每個集滿 13 枚金幣的瀏覽器都會寫進一份 Google 試算表（名額用完後仍繼續記），前 50 位拿到小禮物號碼。程式在 `apps-script/Code.gs`；`stats.html` 顯示累計完成、今天新增、已發／剩餘名額與近 30 天每日人數。一個瀏覽器只算一次，換手機或清除瀏覽器資料會被算成新的一位。
 
-### 設定步驟（第一次啟用統計）
+1. 用要管理名單的 Google 帳號建一份新試算表，命名「草商探索趣 完成統計」。
+2. 試算表選單「擴充功能 → Apps Script」，刪掉預設的 `function myFunction(){}`，貼上 `apps-script/Code.gs` 全部內容，按儲存。
+3. 上方函式選單選 `setup` → 執行 → 審查權限 → 選帳號 →（出現「Google 尚未驗證這個應用程式」時）進階 → 前往（不安全）→ 允許。回試算表會多出「完成名單」「統計」兩個工作表。
+4. 右上「部署 → 新增部署作業」→ 齒輪選「網頁應用程式」→ 執行身分「我」、誰可以存取「所有人」→ 部署 → 複製結尾是 `/exec` 的網址。學校帳號若沒有「所有人」選項，代表網域管理員限制了對外分享，請改用個人 Gmail 或請資訊組開放。
+5. 在瀏覽器開這個網址，看到 `{"limit":50,"claimed":0,"left":50,"finished":0,"today":0,"daily":{}}` 就成功。
+6. 把網址填進 `index.html` 和 `stats.html` 開頭的 `<meta name="caotun-redeem-api" content="…/exec">`，提交後發布。
+7. 測試：開 `你的網址?action=claim&cid=test-0001&name=測試&coins=13`，「完成名單」會多一列「1 號」，`stats.html` 累計變 1。測完刪掉那一列。
+8. 平常看「統計」工作表或 `stats.html`。中鼎文兌換時，用學生畫面上的號碼和名字對照「完成名單」。
+9. 改名額：改 `PRIZE_LIMIT`，再「部署 → 管理部署作業 → 鉛筆 → 版本選新版本 → 部署」，網址不變。重新開一輪：刪掉「完成名單」第 2 列以下。
 
-GitHub Pages 只能放網頁，不能記數字，所以要多一個免費的小伺服器（Vercel）和免費資料庫（Upstash Redis）。程式已經寫好（`api/redeem.js`、`stats.html`），只需要建帳號和按按鈕。
-
-1. **建 Vercel 帳號**：到 vercel.com → Sign Up → 選 Continue with GitHub，用 `lrw-crypto` 這個 GitHub 帳號登入，方案選免費的 Hobby。
-2. **匯入專案**：Add New… → Project → 找到 `lrw-crypto/ttvs` 按 Import（清單裡沒有就按 Adjust GitHub App Permissions，把 ttvs 勾進去）。設定頁：
-   - Project Name：`caotun-explore`（網址會是 `https://caotun-explore.vercel.app`，名字被用走時 Vercel 會提示改名）
-   - Framework Preset：Other
-   - Root Directory：按 Edit，選 `explore`
-   - 其他不用改，按 Deploy。
-3. **建資料庫**：進到專案 → Storage 分頁 → Create Database → 選 Upstash 的「Upstash for Redis」→ 地區選 Tokyo 或 Singapore、方案選 Free → Create → 出現 Connect 時把這個專案連上（Production、Preview 都勾）。Vercel 會自動加好資料庫的環境變數。
-4. **重新部署**：Deployments 分頁 → 最上面那筆右邊的「⋯」→ Redeploy。資料庫是部署後才加的，要重新部署才會生效。
-5. **檢查**：
-   - 開 `https://你的專案.vercel.app/api/redeem`，看到 `{"limit":50,"claimed":0,"left":50,"finished":0,"today":0,"daily":{}}` 就成功了。看到「尚未設定 Upstash 環境變數」代表第 3 或第 4 步沒完成。
-   - 開 `https://你的專案.vercel.app/stats.html`，四個數字都是 0。
-6. **讓 GitHub Pages 版也算進來**：把 `explore/index.html` 和 `explore/stats.html` 開頭的 `<meta name="caotun-redeem-api" content="">` 填成 `content="https://你的專案.vercel.app/api/redeem"`，提交後發布。直接用 Vercel 網址玩的人不用填也會算到。
-7. **自己測一次**：用手機把 13 枚金幣收齊，點客服中鼎文拿到「第 1 位」，`stats.html` 的累計完成會變 1。測完要清掉：Vercel → Storage → 資料庫 → Open in Upstash → CLI，輸入
-   `DEL caotun:prize:count caotun:prize:claims caotun:prize:names caotun:done:cids caotun:done:daily`
-8. **平常怎麼看**：把 `stats.html` 加到書籤，隨時打開看累計人數、今天新增、已發／剩餘小禮物與近 30 天每日人數。要看誰領了第幾號：Upstash CLI 輸入 `HGETALL caotun:prize:names`。
-
-名額數預設 50，要改的話在 Vercel → Settings → Environment Variables 加 `PRIZE_LIMIT`，再 Redeploy。
+`api/redeem.js`（Vercel + Upstash）是同一套網址格式的替代做法，不用可以忽略。
