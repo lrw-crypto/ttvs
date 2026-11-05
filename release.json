@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "sourceCommit": "42860a4f3e5ccb093f0c8e86f181fdce333b1d7b",
+  "sourceCommit": "588b10e265af4d711416c0cc6374b7f4b1ab62e5",
   "files": {
     "assets/shop-icon.svg": "86c1b0563d84c9f9645e167b243018c4b5a626afd829b1fa1a8e22afc64afb4c",
     "explore/index.html": "ea94e8cf26a60edb2f16f53aae2df8c8cf7595b7ecf6f8f12fe049be4828065d",
@@ -66,16 +66,16 @@
     "explore/media/data/works.jpg": "06364e0b1ebe1e3b01e44ecb8490d5951d50dadac577728d3f2c71d48f5005b7",
     "explore/media/npc/zhongdingwen.jpg": "83d16d723f1356dafeb47685c793b48d7c9f1820958ba5711773ca7e6fe296d3",
     "explore/stats.html": "a8663a7acf535b1c9a5847b3d77928398acb1353929ebc19c307000dd81e7db2",
-    "index.html": "11685c62666b0688db72da131e462d4e97bf6a25ffb713cb833a74e9dacea465",
-    "src/adventure-world.js": "fa874a8a300c069f54f46911af5148c714e75a994f1cdfd2b0cf0c3b8ce92c95",
-    "src/app.js": "47d9a0005588376bfeac91502fc76fc19c7d2ac31d13a06e90f1b190ba5439ac",
+    "index.html": "f5c3544e82caefeb27666b0764cf4d41881f6579ea59a80dfa7387c205089bec",
+    "src/adventure-world.js": "c335816e61295882acc8e9937109338a7fd4702b7ce22d26c61e76a4bd357e66",
+    "src/app.js": "1a2d7ab9772b9efe1c1efb3ede6e93152dcf753feae56b614f8248dfeb90c92a",
     "src/game-theme.css": "5d2b8c9f52e414964dafbb940b9d9e07748e929801d82a2d14d592c97839ab64",
     "src/game.js": "722a9448f206850ae4755ea4452964384fd36ca72ae2a2c8d96ddae8ea83ad14",
     "src/integration.js": "dbb42bb4d527d0357ba9d8bd896b6ed080ca9598bb98e5a50cf12b7b2ee9da00",
     "src/rpg.css": "86cf37df5f0001315c532ff1cd4c1cf5e0a1d4b3a29b194b0b9086ee1ff9da48",
     "src/rpg.js": "43738ee8394575f72bc17ce412b4b51cb74c4652ec31f0ac27b8afcf7416a63e",
     "src/scene.css": "987e01ed29c499c8872216f993c2a88f80760c362ab3a867d2acd7f5663da4d9",
-    "src/scene.js": "417d0e9a195ac82d83fe86f4142e53d8b4d0af349e3d42631591609c2f69272f",
+    "src/scene.js": "fc77eb9ca8c5b1e81cea4218cfb8193012f34961986e7df9dd2eec35335a95e6",
     "src/shop-world.js": "cf2a1732b5a10aedad8f5cb9895493a768c34dcc1e85c7358ea213f57c16a801",
     "src/style.css": "1ce725a533a52b20b66c1a2d27c27923768fbe6c43621808f135cf1a1c417030"
   }
