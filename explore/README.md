@@ -80,3 +80,7 @@
 - 名單：Upstash Console 執行 `HGETALL caotun:prize:names`（號碼 → 名字）。重開一輪：`DEL caotun:prize:count caotun:prize:claims caotun:prize:names`。
 - 連不到 API 時，憑證照常顯示，並註明名額以中鼎文現場確認為準。
 - 進度存在學生自己的瀏覽器，懂技術的人可以偽造金幣或用不同瀏覽器多領；名額是方便管理，不是防作弊機制，現場兌換時仍請中鼎文核對號碼。
+
+## 完成人數統計
+
+`api/redeem.js` 也會記錄每個集滿 13 枚金幣的瀏覽器（名額用完後仍繼續統計）。打開 `stats.html` 可以看累計完成人數、今天新增、已發出／剩餘小禮物名額與近 30 天每日人數；直接在瀏覽器開 `https://你的專案.vercel.app/api/redeem` 也能看到同樣的 JSON。一個瀏覽器只算一次，換手機或清除瀏覽器資料會被算成新的一位。
