@@ -1429,7 +1429,7 @@ function npcView({msg,proof,note}){ $('#npcMsg').innerHTML=msg; $('#npcProof').h
 const proofHTML=no=>`<span>兌換憑證</span><b>${esc(ST.name||'草商新生')}</b>${no?`<em>第 ${no} 名</em>`:''}<small>金幣 ${ST.done.length} / ${Q.length} · ${new Date(ST.rankAt||ST.claim?.at||Date.now()).toLocaleString('zh-TW',{timeZone:'Asia/Taipei',hour12:false})}</small>`;
 function rankView(rank){
   if(rank<=PRIZE_LIMIT) npcView({msg:`<b>恭喜！你是第 ${rank} 名完成探索的新生。</b><br>把這個畫面給中鼎文看，就可以換小禮物囉。`,proof:proofHTML(rank),note:`小禮物限量前 ${PRIZE_LIMIT} 名，請在學校現場找中鼎文兌換。`});
-  else npcView({msg:`<b>你是第 ${rank} 名完成探索的新生！</b><br>謝謝探索，獎品已經兌換完畢。`,note:'你已經走遍草商的每個角落，護照上的印章都還在喔。'});
+  else npcView({msg:`<b>你是第 ${rank} 名完成探索的新生！</b><br>禮物已經發送完畢，謝謝你的探索！`,note:'你已經走遍草商的每個角落，護照上的印章都還在喔。'});
 }
 async function openNPC(){
   const all=ST.done.length>=Q.length, n=ST.done.length;
@@ -1447,7 +1447,7 @@ async function openNPC(){
   keepGoing(`小禮物限量前 ${PRIZE_LIMIT} 名。`);
   const st=await rankCall({});
   if($('#npc').hidden||!st||!st.ok) return;
-  if(st.left<=0) npcView({msg:`<b>小禮物已經兌換完畢！</b><br>已經有 ${st.finished} 人完成探索。你還是可以繼續收集金幣，集滿後會顯示你是第幾名。`,note:baseNote});
+  if(st.left<=0) npcView({msg:`<b>禮物已經發送完畢！</b><br>已經有 ${st.finished} 人完成探索。你還是可以繼續收集金幣，集滿後會顯示你是第幾名。`,note:baseNote});
   else keepGoing(`已經有 ${st.finished} 人完成，小禮物還剩 <b>${st.left}</b> 份。`);
 }
 
@@ -1630,7 +1630,7 @@ function winGame(id){
   const q=QI[id]; const fresh=!isDone(id);
   const line=q.kind==='dept'?'你認識了這個科別！':'你發現了校園生活！';
   $('#gBody').innerHTML=`<div class="win"><div class="bigcoin">${q.short}</div><h3>${line}</h3><p>${fresh?`<b>${esc(q.name)}</b> 的印章蓋上護照了，獲得金幣一枚。`:'這枚金幣之前已經收過囉，再挑戰其他建築吧！'}</p><div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center"><button class="btn main" id="collect">${fresh?'收下金幣':'好的'}</button></div></div>`;
-  $('#collect').onclick=()=>{ $('#game').hidden=true; if(fresh){ ST.done.push(id); save(); if(ST.done.length===Q.length) setTimeout(async()=>{ const r=await getRank(); toast(r&&r.rank?(r.rank<=PRIZE_LIMIT?`金幣集滿了！你是第 ${r.rank} 名，去找客服中鼎文換小禮物`:`金幣集滿了！你是第 ${r.rank} 名完成探索的新生`):'金幣集滿了！去找騎滑板車的客服中鼎文'); },2600); flyCoin(); coinPop(id); refreshLabels(); renderTasks(); renderCard(); const dn=DEPTS.filter(d=>isDone(d.id)).length; if(q.kind==='dept'&&dn===DEPTS.length) setTimeout(()=>{ toast(`${DEPTS.length} 個科別都認識了！打開護照領取探索證書`); openPass(); },1600); } };
+  $('#collect').onclick=()=>{ $('#game').hidden=true; if(fresh){ ST.done.push(id); save(); if(ST.done.length===Q.length) setTimeout(async()=>{ const r=await getRank(); toast(r&&r.rank?(r.rank<=PRIZE_LIMIT?`金幣集滿了！你是第 ${r.rank} 名，去找客服中鼎文換小禮物`:`金幣集滿了！你是第 ${r.rank} 名，禮物已經發送完畢`):'金幣集滿了！去找騎滑板車的客服中鼎文'); },2600); flyCoin(); coinPop(id); refreshLabels(); renderTasks(); renderCard(); const dn=DEPTS.filter(d=>isDone(d.id)).length; if(q.kind==='dept'&&dn===DEPTS.length) setTimeout(()=>{ toast(`${DEPTS.length} 個科別都認識了！打開護照領取探索證書`); openPass(); },1600); } };
 }
 function openIntro(id){
   const q=QI[id], I=DEPT_INTRO[id]; if(!I) return;
@@ -1712,7 +1712,7 @@ $('#coinBtn').addEventListener('click',openPass); $('#passBtn').addEventListener
 $('#homeBtn').addEventListener('click',()=>{ select(null); home(); });
 $('#taskBtn').addEventListener('click',()=>{ $('#tasks').classList.toggle('open'); if($('#tasks').classList.contains('open')) select(null); });
 $('#infoBtn').addEventListener('click',()=>{
-  $('#iBody').innerHTML=`<p><b>怎麼玩</b></p><ul><li>直接點建築（或上面的名牌）就能看科別介紹，不用走到門口；你的角色會自己走過去。</li><li>每棟建築都有一個小任務，完成後會顯示「你認識了這個科別！」並得到一枚金幣。</li><li>在科別卡片按「♡ 我有興趣」，十個科別都認識後，護照會發給你一張寫著你方向的「探索證書」。</li><li>集滿 13 枚金幣，點頭上寫「客服」、騎滑板車的中鼎文，就會看到你是第幾名完成。前 50 名可以找她換小禮物，之後的人會顯示「獎品已經兌換完畢」。</li><li>拖曳可以轉動視角，捏合或滾輪可以縮放，點地面可以讓角色走過去。</li></ul>
+  $('#iBody').innerHTML=`<p><b>怎麼玩</b></p><ul><li>直接點建築（或上面的名牌）就能看科別介紹，不用走到門口；你的角色會自己走過去。</li><li>每棟建築都有一個小任務，完成後會顯示「你認識了這個科別！」並得到一枚金幣。</li><li>在科別卡片按「♡ 我有興趣」，十個科別都認識後，護照會發給你一張寫著你方向的「探索證書」。</li><li>集滿 13 枚金幣，點頭上寫「客服」、騎滑板車的中鼎文，就會看到你是第幾名完成。前 50 名可以找她換小禮物，第 51 名之後會顯示「禮物已經發送完畢」。</li><li>拖曳可以轉動視角，捏合或滾輪可以縮放，點地面可以讓角色走過去。</li></ul>
   <p><b>校園廣播</b></p><p>底部的廣播與同學頭上的對話框來自課程 Discord（由 TA Bot 推送到 <code>api/feed</code>）。目前狀態：${feedMode==='live'?'即時':'示範內容'}。</p>
   <p><b>資料來源</b></p><ul>${SOURCES.map(s=>`<li><a href="${s[1]}" target="_blank" rel="noopener">${esc(s[0])}</a></li>`).join('')}</ul>
   <p class="note">校園配置依「115 學年度全校平面圖」；北邊是中投快速道路，西邊是民房，正校門正對面是萊爾富、右手邊是南台灣土魠魚羹。誠工樓、誠教樓、藝升樓、誠學樓依實景照片做成三合院造型；比例為遊戲用的示意。校外商店以一般店面呈現。進度只存在這台裝置的瀏覽器裡。</p>`;
