@@ -1,9 +1,9 @@
 {
   "schema": 1,
-  "sourceCommit": "e6b9689ebfa4691cd642a0a8090576968a30c2ff",
+  "sourceCommit": "57441f15e1ae0d49c69864abba9f3138e393f95f",
   "files": {
     "assets/shop-icon.svg": "86c1b0563d84c9f9645e167b243018c4b5a626afd829b1fa1a8e22afc64afb4c",
-    "explore/index.html": "3d918ff38d7ca8c7b94db2cfb45fa15307e6deed6d4928169bb144a7628f1072",
+    "explore/index.html": "14ee6a9a7b2d50f0860ce6fb3cbccc8fd7125819d3691f1074016dd17cd2b383",
     "explore/media/biz/achieve.png": "ff4437eb2b7985c3ee8ee799d52ac75f928732f1450b95efe510d78ee2bbcfd5",
     "explore/media/biz/comp-1.jpg": "39a7eee938c55d9280570a8487e1470566538e6120dec3b3ac62d29fb3a00b82",
     "explore/media/biz/comp-2.jpg": "1020703c22933e3d8ccb5508944e03393924586b5bb38f58c91c4ddd389c5062",
@@ -65,16 +65,16 @@
     "explore/media/data/visit-2.jpg": "22073cbabaf8b95fcd38582bc1e2a267ac28ae9519416d6ff4eaa5562663a35a",
     "explore/media/data/works.jpg": "06364e0b1ebe1e3b01e44ecb8490d5951d50dadac577728d3f2c71d48f5005b7",
     "explore/media/npc/zhongdingwen.jpg": "83d16d723f1356dafeb47685c793b48d7c9f1820958ba5711773ca7e6fe296d3",
-    "index.html": "f5da42acd8b97b51f8ba1cc42a7abeb0cd24c1321cc6a7930f50d68e9a8962dc",
-    "src/adventure-world.js": "8baf02ee193c528875f50de73175041ac097039b7eface02d0af90f6a2caf3a2",
-    "src/app.js": "c650ee29fb0510b13b346ce845e3a143bf119f20319aa68d7a216e88d689b6b4",
+    "index.html": "4e6b0af0e06a93611fc84d3f85cad7a451723149b8fcba070c50930a28ce433e",
+    "src/adventure-world.js": "1ececeeecc835c269280081d175f1a96a634d919ee3e09927ed9f51c7ac4b6dc",
+    "src/app.js": "93673ed0584bdee42e1070957e6c4c830af9a14fd52a21f17ae292d042f6bb37",
     "src/game-theme.css": "5d2b8c9f52e414964dafbb940b9d9e07748e929801d82a2d14d592c97839ab64",
     "src/game.js": "722a9448f206850ae4755ea4452964384fd36ca72ae2a2c8d96ddae8ea83ad14",
     "src/integration.js": "dbb42bb4d527d0357ba9d8bd896b6ed080ca9598bb98e5a50cf12b7b2ee9da00",
     "src/rpg.css": "86cf37df5f0001315c532ff1cd4c1cf5e0a1d4b3a29b194b0b9086ee1ff9da48",
     "src/rpg.js": "43738ee8394575f72bc17ce412b4b51cb74c4652ec31f0ac27b8afcf7416a63e",
     "src/scene.css": "987e01ed29c499c8872216f993c2a88f80760c362ab3a867d2acd7f5663da4d9",
-    "src/scene.js": "cedc468a372def4c3bb1242028fbb19ebad0850c2a4fed090a87967585c1c528",
+    "src/scene.js": "c9e9adf83e0ced9f47e77f14ea58114177029287061a9eea7276cbab4610c127",
     "src/shop-world.js": "cf2a1732b5a10aedad8f5cb9895493a768c34dcc1e85c7358ea213f57c16a801",
     "src/style.css": "1ce725a533a52b20b66c1a2d27c27923768fbe6c43621808f135cf1a1c417030"
   }

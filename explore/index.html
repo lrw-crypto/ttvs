@@ -7,7 +7,7 @@
 <style>html{color-scheme:light}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font-size:14px;font-family:system-ui,sans-serif}img{max-width:100%}</style>
 <title>草商探索趣</title>
 <!-- 完成名次：把 Google Apps Script 網頁應用程式的網址（https://script.google.com/macros/s/…/exec）填在 content。留空時不連線，集滿金幣只顯示憑證、不顯示名次。程式在 apps-script/Code.gs -->
-<meta name="caotun-rank-api" content="">
+<meta name="caotun-rank-api" content="https://script.google.com/macros/s/AKfycbzS8DBlq0p1D0ZDb0apBa0d9yTIEfMKHQ_tvR2ZaAw1abFEZwwAHTyjv89Vc80Lga3ITw/exec">
 <meta name="description" content="草商探索趣：今天換你當草屯商工新生！帶著探索護照逛校園、完成科別小任務收集金幣，找到你想挑戰的方向。">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1422,7 +1422,12 @@ let ranking=null;
 async function getRank(){
   if(myRank()) return {ok:true,rank:myRank(),prize:myRank()<=PRIZE_LIMIT};
   if(ST.done.length<Q.length) return null;
-  if(!ranking) ranking=rankCall({action:'rank',cid:cid(),coins:ST.done.length}).then(r=>{ ranking=null; if(r&&r.ok&&r.rank){ ST.rank=r.rank; ST.rankAt=Date.now(); save(); } return r; });
+  // 目前的 Code.gs 用 action=rank 回 rank；較早的試算表版用 action=claim 回 no，兩種都接受
+  if(!ranking) ranking=(async()=>{ const q={cid:cid(),coins:ST.done.length};
+      let r=await rankCall({action:'rank',...q});
+      if(r&&!r.rank&&!r.no&&!r.error) r=await rankCall({action:'claim',name:ST.name||'草商新生',...q});
+      if(r&&!r.rank&&r.no) r={...r,rank:r.no};
+      ranking=null; if(r&&r.ok&&r.rank){ ST.rank=r.rank; ST.rankAt=Date.now(); save(); } return r; })();
   return ranking;
 }
 function npcView({msg,proof,note}){ $('#npcMsg').innerHTML=msg; $('#npcProof').hidden=!proof; if(proof) $('#npcProof').innerHTML=proof; $('#npcNote').textContent=note; }
@@ -1445,7 +1450,7 @@ async function openNPC(){
     return;
   }
   keepGoing(`小禮物限量前 ${PRIZE_LIMIT} 名。`);
-  const st=await rankCall({});
+  const st=await rankCall({}); if(st&&st.finished==null&&st.claimed!=null) st.finished=st.claimed; if(st&&st.ok==null&&typeof st.left==='number') st.ok=true;
   if($('#npc').hidden||!st||!st.ok) return;
   if(st.left<=0) npcView({msg:`<b>禮物已經發送完畢！</b><br>已經有 ${st.finished} 人完成探索。你還是可以繼續收集金幣，集滿後會顯示你是第幾名。`,note:baseNote});
   else keepGoing(`已經有 ${st.finished} 人完成，小禮物還剩 <b>${st.left}</b> 份。`);
